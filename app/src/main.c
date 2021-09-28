@@ -1,12 +1,6 @@
-
 #include <stdlib.h>
 #include <math.h>
-
-float distance(const float x, const float y)
-{
-    return sqrtf(x*x + y*y);
-}
-
+#include "distance.h"
 
 int main()
 {
