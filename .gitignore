@@ -3,5 +3,5 @@
 *.d
 *.hex
 
-dist
+build
 
