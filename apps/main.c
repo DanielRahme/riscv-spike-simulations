@@ -9,5 +9,6 @@ int main()
     float a = ((float)rand()/(float)(RAND_MAX)) * float_max;
     float b = ((float)rand()/(float)(RAND_MAX)) * float_max;
 
-    return distance(a, b);
+    volatile const float res = distance(a, b);
+    return 0;
 }
