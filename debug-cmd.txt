@@ -1,0 +1,3 @@
+until pc 0 10074
+untiln pc 0 100a8
+q

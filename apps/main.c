@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <math.h>
-#include "distance.h"
+#include <distance/distance.h>
 
 int main()
 {

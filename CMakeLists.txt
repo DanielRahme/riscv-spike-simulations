@@ -6,7 +6,7 @@ project(
     VERSION 0.1
     DESCRIPTION "Distance example in CMake"
     LANGUAGES C
-    )
+)
 
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME) 
 
@@ -26,23 +26,61 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
      endif() 
  endif() 
  
- include(FetchContent)
 
- #if(${CMAKE_VERSION} VERSION_LESS 3.14)   
- #  include(cmake/add_FetchContent_MakeAvailable.cmake) 
- #endif()
+include(${PROJECT_SOURCE_DIR}/cmake/riscv.cmake)
+include(FetchContent)
 
-
-# Fetch repo and add to build
-#FetchContent_Declare(   
-#   fmtlib
-#   GIT_REPOSITORY https://github.com/fmtlib/fmt.git   
-#   GIT_TAG 5.3.0) 
-#FetchContent_MakeAvailable(fmtlib)
+include(ExternalProject)
 
 
 add_subdirectory(src)
 add_subdirectory(apps)
+
+set(SPIKE_SRC_DIR ${PROJECT_BINARY_DIR}/spike)
+
+ExternalProject_Add(spikeproj
+    GIT_REPOSITORY https://github.com/riscv-software-src/riscv-isa-sim
+    SOURCE_DIR ${SPIKE_SRC_DIR}
+    CONFIGURE_COMMAND "${SPIKE_SRC_DIR}/configure" --prefix=/opt/riscv-spike
+    BUILD_COMMAND ${MAKE}
+    INSTALL_COMMAND cmake -E echo "Skipping install step."
+)
+
+ExternalProject_Get_Property(spikeproj BINARY_DIR)
+set(SPIKE_BIN_DIR ${BINARY_DIR})
+set(SPIKE_LOG_FILE ${PROJECT_BINARY_DIR}/spike-log.txt)
+
+add_executable(spike IMPORTED)
+set_target_properties(spike 
+    PROPERTIES 
+    IMPORTED_LOCATION "${SPIKE_BIN_DIR}/spike")
+
+add_dependencies(spike spikeproj)
+
+find_program(PK pk)
+set(SPIKE_CMD_FILE ${PROJECT_SOURCE_DIR}/debug-cmd.txt)
+
+add_custom_command(OUTPUT ${SPIKE_LOG_FILE}
+    COMMAND spike -l --debug-cmd=${SPIKE_CMD_FILE} --log=${SPIKE_LOG_FILE} --isa=RV32IMAFDC ${PK} $<TARGET_FILE:main>
+    DEPENDS main
+)
+
+
+add_custom_target(spike_log
+    DEPENDS ${SPIKE_LOG_FILE}
+)
+
+
+#add_custom_command(TARGET main
+#    COMMAND riscv64-unknown-elf-objdump -D main > main.dump.txt
+#    COMMENT "Creat a objdump of main binary"
+#    DEPENDS main
+#    )
+
+
+
+
+
 
 if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME OR MODERN_CMAKE_BUILD_TESTING)    
     AND BUILD_TESTING)   

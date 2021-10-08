@@ -2,7 +2,7 @@
 
 add_library(distance_library distance.c)
 
-target_include_directories(distance_library PUBLIC ../include/distance)
+target_include_directories(distance_library PUBLIC ../include)
 
 # Dependency libraries here
 # The "m" is math.h
