@@ -61,7 +61,7 @@ find_program(PK pk)
 set(SPIKE_CMD_FILE ${PROJECT_SOURCE_DIR}/debug-cmd.txt)
 
 add_custom_command(OUTPUT ${SPIKE_LOG_FILE}
-    COMMAND spike -l --debug-cmd=${SPIKE_CMD_FILE} --log=${SPIKE_LOG_FILE} --isa=RV32IMAFDC ${PK} $<TARGET_FILE:main>
+    COMMAND spike -d -l --debug-cmd=${SPIKE_CMD_FILE} --log=${SPIKE_LOG_FILE} --isa=RV32IMAFDC ${PK} $<TARGET_FILE:main>
     DEPENDS main
 )
 
