@@ -10,6 +10,7 @@ project(
 
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME) 
 
+
      set(CMAKE_CXX_EXTENSIONS OFF)   # Let's nicely support folders in IDEs   
      set_property(GLOBAL PROPERTY USE_FOLDERS ON)   
      
@@ -29,13 +30,38 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 
 include(${PROJECT_SOURCE_DIR}/cmake/riscv.cmake)
 include(FetchContent)
-
-include(ExternalProject)
+include(ExternalProject)    
 
 
 add_subdirectory(src)
 add_subdirectory(apps)
 
+### Get proxy-kernel
+set(PK_SRC_DIR ${PROJECT_BINARY_DIR}/pk)
+set(PK_CONFIG_FLAGS --prefix=/opt/riscv/bin --host=riscv64-unknown-elf --with-arch=rv32imafdc --enable-fp-emulation)
+#set(PK_CONFIG_FLAGS --prefix=/opt/riscv/bin --host=riscv64-unknown-elf --with-arch=rv32i)
+
+ExternalProject_Add(pkproj
+    GIT_REPOSITORY https://github.com/riscv-software-src/riscv-pk
+    SOURCE_DIR ${PK_SRC_DIR}
+    CONFIGURE_COMMAND "${PK_SRC_DIR}/configure" ${PK_CONFIG_FLAGS}
+    #CMAKE_ARGS -DCMAKE_TOOLCHAIN_FILE=${PROJECT_SOURCE_DIR}/cmake/riscv.cmake
+    BUILD_COMMAND ${MAKE}
+    INSTALL_COMMAND cmake -E echo "Skipping install step."
+)
+ExternalProject_Get_Property(pkproj BINARY_DIR)
+
+set(PK_BIN_DIR ${BINARY_DIR})
+
+add_executable(pk_exe IMPORTED)
+set_target_properties(pk_exe
+    PROPERTIES 
+    IMPORTED_LOCATION "${PK_BIN_DIR}/pk")
+
+add_dependencies(pk_exe pkproj)
+
+
+### Get Spike
 set(SPIKE_SRC_DIR ${PROJECT_BINARY_DIR}/spike)
 
 ExternalProject_Add(spikeproj
@@ -45,8 +71,10 @@ ExternalProject_Add(spikeproj
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND cmake -E echo "Skipping install step."
 )
-
 ExternalProject_Get_Property(spikeproj BINARY_DIR)
+
+
+## Spike log Command
 set(SPIKE_BIN_DIR ${BINARY_DIR})
 set(SPIKE_LOG_FILE ${PROJECT_BINARY_DIR}/spike-log.txt)
 
@@ -55,13 +83,15 @@ set_target_properties(spike
     PROPERTIES 
     IMPORTED_LOCATION "${SPIKE_BIN_DIR}/spike")
 
-add_dependencies(spike spikeproj)
+add_dependencies(spike spikeproj pkproj)
 
-find_program(PK pk)
+
+#find_program(PK pk)
 set(SPIKE_CMD_FILE ${PROJECT_SOURCE_DIR}/debug-cmd.txt)
 
 add_custom_command(OUTPUT ${SPIKE_LOG_FILE}
-    COMMAND spike -d -l --debug-cmd=${SPIKE_CMD_FILE} --log=${SPIKE_LOG_FILE} --isa=RV32IMAFDC ${PK} $<TARGET_FILE:main>
+    COMMAND spike -d -l --debug-cmd=${SPIKE_CMD_FILE} --log=${SPIKE_LOG_FILE} --isa=RV32IMAFDC
+    $<TARGET_FILE:pk_exe> $<TARGET_FILE:main>
     DEPENDS main
 )
 

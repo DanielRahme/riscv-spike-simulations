@@ -42,6 +42,7 @@ message( "RISC-V Cross Compile: ${CROSS_COMPILE}" )
 set( CMAKE_SYSTEM_NAME          Generic )
 set( CMAKE_SYSTEM_PROCESSOR     rv32imafc )
 set( CMAKE_EXECUTABLE_SUFFIX    ".elf")
+set(MABI ilp32f)
 
 # specify the cross compiler. We force the compiler so that CMake doesn't
 # attempt to build a simple test program as this will fail without us using
@@ -68,7 +69,7 @@ set( CMAKE_OBJDUMP      ${RISCV_TOOLCHAIN_BIN_PATH}/${CROSS_COMPILE}objdump
 # Set the CMAKE C flags (which should also be used by the assembler!
 set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g" )
 set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=${CMAKE_SYSTEM_PROCESSOR}" )
-set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mabi=ilp32f" )
+set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mabi=${MABI}" )
 
 set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS}" CACHE STRING "" )
 set( CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS}" CACHE STRING "" )
