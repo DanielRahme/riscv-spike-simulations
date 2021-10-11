@@ -32,14 +32,12 @@ include(${PROJECT_SOURCE_DIR}/cmake/riscv.cmake)
 include(FetchContent)
 include(ExternalProject)    
 
-
 add_subdirectory(src)
 add_subdirectory(apps)
 
 ### Get proxy-kernel
 set(PK_SRC_DIR ${PROJECT_BINARY_DIR}/pk)
 set(PK_CONFIG_FLAGS --prefix=/opt/riscv/bin --host=riscv64-unknown-elf --with-arch=rv32imafdc --enable-fp-emulation)
-#set(PK_CONFIG_FLAGS --prefix=/opt/riscv/bin --host=riscv64-unknown-elf --with-arch=rv32i)
 
 ExternalProject_Add(pkproj
     GIT_REPOSITORY https://github.com/riscv-software-src/riscv-pk
@@ -83,7 +81,7 @@ set_target_properties(spike
     PROPERTIES 
     IMPORTED_LOCATION "${SPIKE_BIN_DIR}/spike")
 
-add_dependencies(spike spikeproj pkproj)
+add_dependencies(spike spikeproj)
 
 
 #find_program(PK pk)
@@ -92,7 +90,7 @@ set(SPIKE_CMD_FILE ${PROJECT_SOURCE_DIR}/debug-cmd.txt)
 add_custom_command(OUTPUT ${SPIKE_LOG_FILE}
     COMMAND spike -d -l --debug-cmd=${SPIKE_CMD_FILE} --log=${SPIKE_LOG_FILE} --isa=RV32IMAFDC
     $<TARGET_FILE:pk_exe> $<TARGET_FILE:main>
-    DEPENDS main
+    DEPENDS main pk_exe ${SPIKE_CMD_FILE}
 )
 
 
