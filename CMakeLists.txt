@@ -35,6 +35,20 @@ include(ExternalProject)
 add_subdirectory(src)
 add_subdirectory(apps)
 
+
+### Object dump
+set(OBJDUMP_FILE ${PROJECT_BINARY_DIR}/objdump.txt)
+find_program(OBJDUMP riscv64-unknown-elf-objdump)
+
+add_custom_command(OUTPUT ${OBJDUMP_FILE}
+    COMMAND ${OBJDUMP} -d $<TARGET_FILE:main> > ${OBJDUMP_FILE}
+    DEPENDS main
+)
+add_custom_target(objdump
+    DEPENDS ${OBJDUMP_FILE}
+)
+
+
 ### Get proxy-kernel
 set(PK_SRC_DIR ${PROJECT_BINARY_DIR}/pk)
 set(PK_CONFIG_FLAGS --prefix=/opt/riscv/bin --host=riscv64-unknown-elf --with-arch=rv32imafdc --enable-fp-emulation)
@@ -43,7 +57,6 @@ ExternalProject_Add(pkproj
     GIT_REPOSITORY https://github.com/riscv-software-src/riscv-pk
     SOURCE_DIR ${PK_SRC_DIR}
     CONFIGURE_COMMAND "${PK_SRC_DIR}/configure" ${PK_CONFIG_FLAGS}
-    #CMAKE_ARGS -DCMAKE_TOOLCHAIN_FILE=${PROJECT_SOURCE_DIR}/cmake/riscv.cmake
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND cmake -E echo "Skipping install step."
 )
@@ -97,17 +110,6 @@ add_custom_command(OUTPUT ${SPIKE_LOG_FILE}
 add_custom_target(spike_log
     DEPENDS ${SPIKE_LOG_FILE}
 )
-
-
-#add_custom_command(TARGET main
-#    COMMAND riscv64-unknown-elf-objdump -D main > main.dump.txt
-#    COMMENT "Creat a objdump of main binary"
-#    DEPENDS main
-#    )
-
-
-
-
 
 
 if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME OR MODERN_CMAKE_BUILD_TESTING)    
