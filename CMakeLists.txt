@@ -49,6 +49,21 @@ add_custom_target(objdump
 )
 
 
+### Python find addresses from objdump
+set(PYTHON_OBJDUMP ${PROJECT_SOURCE_DIR}/scripts/objdump_parser.py)
+set(SPIKE_CMD_FILE ${PROJECT_BINARY_DIR}/spike-cmd.txt)
+find_program(Python3 COMPONENTS Interpreter)
+
+add_custom_command(OUTPUT ${SPIKE_CMD_FILE}
+    COMMAND python3 ${PYTHON_OBJDUMP} ${OBJDUMP_FILE}
+    DEPENDS ${OBJDUMP_FILE}
+    )
+
+add_custom_target(python-spike-cmd
+    DEPENDS ${SPIKE_CMD_FILE}
+)
+
+
 ### Get proxy-kernel
 set(PK_SRC_DIR ${PROJECT_BINARY_DIR}/pk)
 set(PK_CONFIG_FLAGS --prefix=/opt/riscv/bin --host=riscv64-unknown-elf --with-arch=rv32imafdc --enable-fp-emulation)
@@ -97,15 +112,12 @@ set_target_properties(spike
 add_dependencies(spike spikeproj)
 
 
-#find_program(PK pk)
-set(SPIKE_CMD_FILE ${PROJECT_SOURCE_DIR}/debug-cmd.txt)
 
 add_custom_command(OUTPUT ${SPIKE_LOG_FILE}
     COMMAND spike -d -l --debug-cmd=${SPIKE_CMD_FILE} --log=${SPIKE_LOG_FILE} --isa=RV32IMAFDC
     $<TARGET_FILE:pk_exe> $<TARGET_FILE:main>
     DEPENDS main pk_exe ${SPIKE_CMD_FILE}
 )
-
 
 add_custom_target(spike_log
     DEPENDS ${SPIKE_LOG_FILE}
