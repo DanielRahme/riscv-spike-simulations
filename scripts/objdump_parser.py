@@ -23,8 +23,8 @@ def extract_address(filename):
 
 
 
-def create_spike_cmd(addr_main, addr_ret):
-    with open('spike-cmd.txt', 'w') as f:
+def create_spike_cmd(outfile, addr_main, addr_ret):
+    with open(outfile, 'w') as f:
         f.write("until pc 0 " + str(addr_main))
         f.write('\n')
         f.write("untiln pc 0 " + str(addr_ret))
@@ -33,15 +33,15 @@ def create_spike_cmd(addr_main, addr_ret):
         f.write('\n')
     
 
-def main(filename):
+def main(filename, outfile):
     addresses = extract_address(filename) 
     if (addresses[0] == "" or addresses[1] == ""):
         print("Warning: Invalid addresses. Check input file is correct!")
     else:
-        create_spike_cmd(addresses[0], addresses[1])
+        create_spike_cmd(outfile, addresses[0], addresses[1])
         print("File: spike-cmd.txt created")
 
 if __name__ == "__main__":
     import sys
-    main(sys.argv[1])
+    main(sys.argv[1], sys.argv[2])
     #main()

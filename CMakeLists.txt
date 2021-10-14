@@ -37,10 +37,12 @@ add_subdirectory(apps)
 
 
 ### Object dump
-set(OBJDUMP_FILE ${PROJECT_BINARY_DIR}/objdump.txt)
+set(LOG_DIR ${PROJECT_BINARY_DIR}/log)
+set(OBJDUMP_FILE ${LOG_DIR}/objdump.txt)
 find_program(OBJDUMP riscv64-unknown-elf-objdump)
 
 add_custom_command(OUTPUT ${OBJDUMP_FILE}
+    COMMAND mkdir ${LOG_DIR}
     COMMAND ${OBJDUMP} -d $<TARGET_FILE:main> > ${OBJDUMP_FILE}
     DEPENDS main
 )
@@ -51,11 +53,13 @@ add_custom_target(objdump
 
 ### Python find addresses from objdump
 set(PYTHON_OBJDUMP ${PROJECT_SOURCE_DIR}/scripts/objdump_parser.py)
-set(SPIKE_CMD_FILE ${PROJECT_BINARY_DIR}/spike-cmd.txt)
+#set(SPIKE_CMD_FILE ${PROJECT_BINARY_DIR}/log/spike-cmd.txt)
+set(SPIKE_CMD_FILE ${LOG_DIR}/spike-cmd.txt)
+
 find_program(Python3 COMPONENTS Interpreter)
 
 add_custom_command(OUTPUT ${SPIKE_CMD_FILE}
-    COMMAND python3 ${PYTHON_OBJDUMP} ${OBJDUMP_FILE}
+    COMMAND python3 ${PYTHON_OBJDUMP} ${OBJDUMP_FILE} ${SPIKE_CMD_FILE}
     DEPENDS ${OBJDUMP_FILE}
     )
 
@@ -102,7 +106,7 @@ ExternalProject_Get_Property(spikeproj BINARY_DIR)
 
 ## Spike log Command
 set(SPIKE_BIN_DIR ${BINARY_DIR})
-set(SPIKE_LOG_FILE ${PROJECT_BINARY_DIR}/spike-log.txt)
+set(SPIKE_LOG_FILE ${LOG_DIR}/spike-log.txt)
 
 add_executable(spike IMPORTED)
 set_target_properties(spike 
@@ -122,6 +126,23 @@ add_custom_command(OUTPUT ${SPIKE_LOG_FILE}
 add_custom_target(spike_log
     DEPENDS ${SPIKE_LOG_FILE}
 )
+
+
+### Extract instructions from Spike log
+set(PYTHON_SPIKE_PARSER ${PROJECT_SOURCE_DIR}/scripts/spike_parser.py)
+set(PYTHON_FREQ_FILE ${PROJECT_BINARY_DIR}/results/instruction_freq.csv)
+#find_program(Python3 COMPONENTS Interpreter)
+
+add_custom_command(OUTPUT ${PYTHON_FREQ_FILE}
+    COMMAND mkdir results
+    COMMAND python3 ${PYTHON_SPIKE_PARSER} ${SPIKE_LOG_FILE} ${PYTHON_FREQ_FILE}
+    DEPENDS ${SPIKE_LOG_FILE}
+    )
+
+add_custom_target(python-extract-instructions
+    DEPENDS ${PYTHON_FREQ_FILE}
+)
+
 
 
 if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME OR MODERN_CMAKE_BUILD_TESTING)    
