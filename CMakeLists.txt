@@ -53,16 +53,25 @@ add_custom_target(objdump
 
 ### Python find addresses from objdump
 set(PYTHON_OBJDUMP ${PROJECT_SOURCE_DIR}/scripts/objdump_parser.py)
-#set(SPIKE_CMD_FILE ${PROJECT_BINARY_DIR}/log/spike-cmd.txt)
+set(PY_REQ_FILE ${PROJECT_SOURCE_DIR}/py_requirements.txt)
 set(SPIKE_CMD_FILE ${LOG_DIR}/spike-cmd.txt)
 
 find_program(Python3 COMPONENTS Interpreter)
 
+### Install Python modules used in this project
+add_custom_command(OUTPUT py_req_install.stamp
+    COMMAND python3 -m pip install -U -r ${PY_REQ_FILE}
+    COMMAND touch ${CMAKE_BINARY_DIR}/py_req_install.stamp
+)
+add_custom_target(python-install-libraries
+    DEPENDS py_req_install.stamp
+)
+
+### Extract addresses from main.
 add_custom_command(OUTPUT ${SPIKE_CMD_FILE}
     COMMAND python3 ${PYTHON_OBJDUMP} ${OBJDUMP_FILE} ${SPIKE_CMD_FILE}
     DEPENDS ${OBJDUMP_FILE}
-    )
-
+)
 add_custom_target(python-spike-cmd
     DEPENDS ${SPIKE_CMD_FILE}
 )
@@ -134,7 +143,7 @@ set(PYTHON_FREQ_FILE ${PROJECT_BINARY_DIR}/results/instruction_freq.csv)
 #find_program(Python3 COMPONENTS Interpreter)
 
 add_custom_command(OUTPUT ${PYTHON_FREQ_FILE}
-    COMMAND mkdir results
+    COMMAND mkdir -p results
     COMMAND python3 ${PYTHON_SPIKE_PARSER} ${SPIKE_LOG_FILE} ${PYTHON_FREQ_FILE}
     DEPENDS ${SPIKE_LOG_FILE}
     )
