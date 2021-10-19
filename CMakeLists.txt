@@ -8,6 +8,8 @@ project(
     LANGUAGES C
 )
 
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
+
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME) 
 
 
@@ -31,6 +33,8 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 include(${PROJECT_SOURCE_DIR}/cmake/riscv.cmake)
 include(FetchContent)
 include(ExternalProject)    
+
+find_package(Pulpino)
 
 add_subdirectory(src)
 add_subdirectory(apps)
