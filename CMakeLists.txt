@@ -32,6 +32,9 @@ include(${PROJECT_SOURCE_DIR}/cmake/riscv.cmake)
 include(FetchContent)
 include(ExternalProject)    
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake")
+find_package(Pulpino)
+
 add_subdirectory(src)
 add_subdirectory(apps)
 
