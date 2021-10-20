@@ -1,4 +1,3 @@
-
 cmake_minimum_required(VERSION 3.20)
 
 project(
@@ -8,17 +7,12 @@ project(
     LANGUAGES C
 )
 
+### CMake modules path in folder cmake/
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME) 
-
-
      set(CMAKE_CXX_EXTENSIONS OFF)   # Let's nicely support folders in IDEs   
      set_property(GLOBAL PROPERTY USE_FOLDERS ON)   
-     
-
-     # Testing only available if this is the main app   # Note this needs to be done in the main CMakeLists   # since it calls enable_testing, which must be in the   # main CMakeLists.   
-
      include(CTest)   # Docs only available if this is the main app   
 
      find_package(Doxygen)   
@@ -29,23 +23,34 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
      endif() 
  endif() 
  
+if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME OR MODERN_CMAKE_BUILD_TESTING)    
+    AND BUILD_TESTING)   
+    add_subdirectory(tests) 
+endif()
 
-include(${PROJECT_SOURCE_DIR}/cmake/riscv.cmake)
+################################################################################
+#################### PACKAGES AND FILES
+################################################################################
+include(${PROJECT_SOURCE_DIR}/cmake/riscv.cmake)    # RISCV GCC toolchain
 include(FetchContent)
 include(ExternalProject)    
 
-find_package(Pulpino)
-find_package(Pk) # Proxy-kernel
-find_package(Spike) # Proxy-kernel
+find_package(Pulpino)   # PULPino with CMSIS-DSP library
+find_package(Pk)        # Proxy-kernel
+find_package(Spike)     # Spike simulator
 
 add_subdirectory(src)
 add_subdirectory(apps)
 
+find_program(OBJDUMP riscv64-unknown-elf-objdump)
+find_program(Python3 COMPONENTS Interpreter)
 
+################################################################################
+#################### COMMANDS
+################################################################################
 ### Object dump
 set(LOG_DIR ${PROJECT_BINARY_DIR}/log)
 set(OBJDUMP_FILE ${LOG_DIR}/objdump.txt)
-find_program(OBJDUMP riscv64-unknown-elf-objdump)
 
 add_custom_command(OUTPUT ${OBJDUMP_FILE}
     COMMAND mkdir ${LOG_DIR}
@@ -57,13 +62,6 @@ add_custom_target(objdump
 )
 
 
-### Python find addresses from objdump
-set(PYTHON_OBJDUMP ${PROJECT_SOURCE_DIR}/scripts/objdump_parser.py)
-set(PY_REQ_FILE ${PROJECT_SOURCE_DIR}/py_requirements.txt)
-set(SPIKE_CMD_FILE ${LOG_DIR}/spike-cmd.txt)
-
-find_program(Python3 COMPONENTS Interpreter)
-
 ### Install Python modules used in this project
 add_custom_command(OUTPUT py_req_install.stamp
     COMMAND python3 -m pip install -U -r ${PY_REQ_FILE}
@@ -72,6 +70,13 @@ add_custom_command(OUTPUT py_req_install.stamp
 add_custom_target(python-install-libraries
     DEPENDS py_req_install.stamp
 )
+
+
+### Python find addresses from objdump
+set(PYTHON_OBJDUMP ${PROJECT_SOURCE_DIR}/scripts/objdump_parser.py)
+set(PY_REQ_FILE ${PROJECT_SOURCE_DIR}/py_requirements.txt)
+set(SPIKE_CMD_FILE ${LOG_DIR}/spike-cmd.txt)
+
 
 ### Extract addresses from main.
 add_custom_command(OUTPUT ${SPIKE_CMD_FILE}
@@ -91,7 +96,6 @@ add_custom_command(OUTPUT ${SPIKE_LOG_FILE}
     $<TARGET_FILE:pk_exe> $<TARGET_FILE:main>
     DEPENDS main pk_exe ${SPIKE_CMD_FILE}
 )
-
 add_custom_target(spike_log
     DEPENDS ${SPIKE_LOG_FILE}
 )
@@ -100,21 +104,12 @@ add_custom_target(spike_log
 ### Extract instructions from Spike log
 set(PYTHON_SPIKE_PARSER ${PROJECT_SOURCE_DIR}/scripts/spike_parser.py)
 set(PYTHON_FREQ_FILE ${PROJECT_BINARY_DIR}/results/instruction_freq.csv)
-#find_program(Python3 COMPONENTS Interpreter)
 
 add_custom_command(OUTPUT ${PYTHON_FREQ_FILE}
     COMMAND mkdir -p results
     COMMAND python3 ${PYTHON_SPIKE_PARSER} ${SPIKE_LOG_FILE} ${PYTHON_FREQ_FILE}
     DEPENDS ${SPIKE_LOG_FILE}
-    )
-
+)
 add_custom_target(python-extract-instructions
     DEPENDS ${PYTHON_FREQ_FILE}
 )
-
-
-
-if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME OR MODERN_CMAKE_BUILD_TESTING)    
-    AND BUILD_TESTING)   
-    add_subdirectory(tests) 
-endif()
