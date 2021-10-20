@@ -36,6 +36,7 @@ include(ExternalProject)
 
 find_package(Pulpino)
 find_package(Pk) # Proxy-kernel
+find_package(Spike) # Proxy-kernel
 
 add_subdirectory(src)
 add_subdirectory(apps)
@@ -82,31 +83,8 @@ add_custom_target(python-spike-cmd
 )
 
 
-### Get Spike
-set(SPIKE_SRC_DIR ${PROJECT_BINARY_DIR}/spike)
-
-ExternalProject_Add(spikeproj
-    GIT_REPOSITORY https://github.com/riscv-software-src/riscv-isa-sim
-    SOURCE_DIR ${SPIKE_SRC_DIR}
-    CONFIGURE_COMMAND "${SPIKE_SRC_DIR}/configure" --prefix=/opt/riscv-spike
-    BUILD_COMMAND ${MAKE}
-    INSTALL_COMMAND cmake -E echo "Skipping install step."
-)
-ExternalProject_Get_Property(spikeproj BINARY_DIR)
-
-
 ## Spike log Command
-set(SPIKE_BIN_DIR ${BINARY_DIR})
 set(SPIKE_LOG_FILE ${LOG_DIR}/spike-log.txt)
-
-add_executable(spike IMPORTED)
-set_target_properties(spike 
-    PROPERTIES 
-    IMPORTED_LOCATION "${SPIKE_BIN_DIR}/spike")
-
-add_dependencies(spike spikeproj)
-
-
 
 add_custom_command(OUTPUT ${SPIKE_LOG_FILE}
     COMMAND spike -d -l --debug-cmd=${SPIKE_CMD_FILE} --log=${SPIKE_LOG_FILE} --isa=RV32IMAFDC
