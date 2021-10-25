@@ -8,7 +8,7 @@ project(
 )
 
 ### CMake modules path in folder cmake/
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules")
 
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME) 
      set(CMAKE_CXX_EXTENSIONS OFF)   # Let's nicely support folders in IDEs   
@@ -31,11 +31,14 @@ endif()
 ################################################################################
 #################### PACKAGES AND FILES
 ################################################################################
-include(${PROJECT_SOURCE_DIR}/cmake/riscv.cmake)    # RISCV GCC toolchain
+#include(${PROJECT_SOURCE_DIR}/cmake/riscv.cmake)    # RISCV GCC toolchain
+#set(CMAKE_TOOLCHAIN_FILE ${PROJECT_SOURCE_DIR}/cmake/riscv.cmake)
+
 include(FetchContent)
 include(ExternalProject)    
 
-find_package(Pulpino)   # PULPino with CMSIS-DSP library
+#find_package(Pulpino)   # PULPino with CMSIS-DSP library
+find_package(CMSIS)
 find_package(Pk)        # Proxy-kernel
 find_package(Spike)     # Spike simulator
 
@@ -44,6 +47,8 @@ add_subdirectory(apps)
 
 find_program(OBJDUMP riscv64-unknown-elf-objdump)
 find_program(Python3 COMPONENTS Interpreter)
+
+#include(external_library/CMSIS/CMakeLists.txt)
 
 ################################################################################
 #################### COMMANDS
