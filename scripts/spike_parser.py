@@ -9,7 +9,14 @@ def extract_instructions(filename):
 
     with open(filename) as f:
         for line in f:
-            instructs.append(line.split()[4])
+            words = line.split()
+
+            if (len(words) < 5 or words[2] == "exception"):
+                    #print("Skip exception")
+                    #print(words)
+                    pass
+            else:
+                instructs.append(words[4])
     return collections.Counter(instructs)
 
 def write_to_csv(freq_instructs, outfile):
