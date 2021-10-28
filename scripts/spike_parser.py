@@ -5,18 +5,27 @@ import collections
 import matplotlib.pyplot as plt
 
 def extract_instructions(filename):
+    exception_found = False
     instructs = []
 
     with open(filename) as f:
         for line in f:
             words = line.split()
 
-            if (len(words) < 5 or words[2] == "exception"):
-                    #print("Skip exception")
-                    #print(words)
-                    pass
-            else:
+            if (words[2] != "exception" and not(exception_found)):
                 instructs.append(words[4])
+
+            elif (words[2] == "exception"):
+                exception_found = True
+
+            # Handles the tval instruction
+            elif (len(words) < 5 and exception_found):  
+                pass
+
+            elif (exception_found):
+                if (words[4] == "sret"):
+                    exception_found = False
+
     return collections.Counter(instructs)
 
 def write_to_csv(freq_instructs, outfile):
