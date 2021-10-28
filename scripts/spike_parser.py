@@ -41,7 +41,10 @@ def print_bar_chart(filepath, data):
     ax.set_xlabel('Instruction')
 
     bar_chart_file = filepath + "_barchart.png"
-    plt.savefig(bar_chart_file)
+
+    plt.tick_params(axis='x', which='major', labelsize=7)
+
+    plt.savefig(bar_chart_file, dpi=300)
     #plt.show()
 
 def print_pie_chart(filepath, data):
@@ -53,7 +56,7 @@ def print_pie_chart(filepath, data):
     ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
 
     pie_chart_file = filepath + "_piechart.png"
-    plt.savefig(pie_chart_file)
+    plt.savefig(pie_chart_file, dpi=300)
     #plt.show()
 
 def main(input_file, output_path):
