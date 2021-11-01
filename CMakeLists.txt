@@ -37,7 +37,6 @@ endif()
 include(FetchContent)
 include(ExternalProject)    
 
-#find_package(Pulpino)   # PULPino with CMSIS-DSP library
 find_package(CMSIS)
 find_package(Pk)        # Proxy-kernel
 find_package(Spike)     # Spike simulator
@@ -48,17 +47,19 @@ add_subdirectory(apps)
 find_program(OBJDUMP riscv64-unknown-elf-objdump)
 find_program(Python3 COMPONENTS Interpreter)
 
-#include(external_library/CMSIS/CMakeLists.txt)
+# Directory location for logs and results
+set(LOG_DIR ${PROJECT_BINARY_DIR}/log)
+set(RESULT_DIR ${PROJECT_BINARY_DIR}/results)
+file(MAKE_DIRECTORY ${LOG_DIR})
+file(MAKE_DIRECTORY ${RESULT_DIR})
 
 ################################################################################
 #################### COMMANDS
 ################################################################################
 ### Object dump
-set(LOG_DIR ${PROJECT_BINARY_DIR}/log)
 set(OBJDUMP_FILE ${LOG_DIR}/objdump.txt)
 
 add_custom_command(OUTPUT ${OBJDUMP_FILE}
-    COMMAND mkdir ${LOG_DIR}
     COMMAND ${OBJDUMP} -d $<TARGET_FILE:main> > ${OBJDUMP_FILE}
     DEPENDS main
 )
@@ -108,10 +109,9 @@ add_custom_target(spike_log
 
 ### Extract instructions from Spike log
 set(PYTHON_SPIKE_PARSER ${PROJECT_SOURCE_DIR}/scripts/spike_parser.py)
-set(PYTHON_FREQ_FILE ${PROJECT_BINARY_DIR}/results/instruction_freq.csv)
+set(PYTHON_FREQ_FILE ${RESULT_DIR}/instruction_freq.csv)
 
 add_custom_command(OUTPUT ${PYTHON_FREQ_FILE}
-    COMMAND mkdir -p results
     COMMAND python3 ${PYTHON_SPIKE_PARSER} ${SPIKE_LOG_FILE} ${PYTHON_FREQ_FILE}
     DEPENDS ${SPIKE_LOG_FILE}
 )
