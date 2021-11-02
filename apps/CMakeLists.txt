@@ -38,6 +38,7 @@ foreach(testsourcefile ${MY_APPS})
     add_executable(${testname} ${testsourcefile})
 
     target_compile_features(${testname} PRIVATE c_std_99)
+    target_link_options(${testname} PRIVATE -Wl,--gc-sections)
     target_link_libraries(${testname} PRIVATE ${MY_LIBS})
     target_compile_options(${testname} PRIVATE ${C_FLAGS})
 endforeach(testsourcefile ${MY_APPS})
