@@ -57,11 +57,14 @@ file(MAKE_DIRECTORY ${RESULT_DIR})
 #################### COMMANDS
 ################################################################################
 ### Object dump
+
+set(EXECUTABLE main)
+
 set(OBJDUMP_FILE ${LOG_DIR}/objdump.txt)
 
 add_custom_command(OUTPUT ${OBJDUMP_FILE}
-    COMMAND ${OBJDUMP} -d $<TARGET_FILE:main> > ${OBJDUMP_FILE}
-    DEPENDS main
+    COMMAND ${OBJDUMP} -d $<TARGET_FILE:${EXECUTABLE}> > ${OBJDUMP_FILE}
+    DEPENDS ${EXECUTABLE}
 )
 add_custom_target(objdump
     DEPENDS ${OBJDUMP_FILE}
@@ -84,7 +87,7 @@ set(PY_REQ_FILE ${PROJECT_SOURCE_DIR}/py_requirements.txt)
 set(SPIKE_CMD_FILE ${LOG_DIR}/spike-cmd.txt)
 
 
-### Extract addresses from main.
+### Extract addresses from current executable.
 add_custom_command(OUTPUT ${SPIKE_CMD_FILE}
     COMMAND python3 ${PYTHON_OBJDUMP} ${OBJDUMP_FILE} ${SPIKE_CMD_FILE}
     DEPENDS ${OBJDUMP_FILE}
@@ -99,8 +102,8 @@ set(SPIKE_LOG_FILE ${LOG_DIR}/spike-log.txt)
 
 add_custom_command(OUTPUT ${SPIKE_LOG_FILE}
     COMMAND spike -d -l --debug-cmd=${SPIKE_CMD_FILE} --log=${SPIKE_LOG_FILE} --isa=RV32IMAFDC
-    $<TARGET_FILE:pk_exe> $<TARGET_FILE:main>
-    DEPENDS main pk_exe ${SPIKE_CMD_FILE}
+    $<TARGET_FILE:pk_exe> $<TARGET_FILE:${EXECUTABLE}>
+    DEPENDS ${EXECUTABLE} pk_exe ${SPIKE_CMD_FILE}
 )
 add_custom_target(spike_log
     DEPENDS ${SPIKE_LOG_FILE}
