@@ -28,16 +28,16 @@ def extract_instructions(filename):
 
     return collections.Counter(instructs)
 
-def write_to_csv(freq_instructs, outfile):
+def write_to_csv(freq_instructs, file_prefix):
     import csv
-    output_filename = outfile
+    output_filename = file_prefix + "-freq-instruct.csv"
     with open(output_filename, 'w') as f:
         w = csv.writer(f)
         w.writerows(freq_instructs.items())
 
     print ("Created file " + output_filename)
 
-def print_bar_chart(filepath, data):
+def print_bar_chart(file_prefix, data):
     names = list(data.keys())
     values = list(data.values())
 
@@ -46,17 +46,15 @@ def print_bar_chart(filepath, data):
 
     fig.suptitle('Instruction frequency')
     plt.xticks(rotation=90)
+    plt.tick_params(axis='x', which='major', labelsize=7)
     ax.set_ylabel('Freq')
     ax.set_xlabel('Instruction')
 
-    bar_chart_file = filepath + "_barchart.png"
-
-    plt.tick_params(axis='x', which='major', labelsize=7)
-
+    bar_chart_file = file_prefix + "-barchart.png"
     plt.savefig(bar_chart_file, dpi=300)
     #plt.show()
 
-def print_pie_chart(filepath, data):
+def print_pie_chart(file_prefix, data):
     labels = list(data.keys())
     sizes = list(data.values())
 
@@ -64,15 +62,15 @@ def print_pie_chart(filepath, data):
     ax.pie(sizes, labels=labels, autopct='%1.1f%%', shadow=True, startangle=90)
     ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
 
-    pie_chart_file = filepath + "_piechart.png"
+    pie_chart_file = file_prefix + "-piechart.png"
     plt.savefig(pie_chart_file, dpi=300)
     #plt.show()
 
-def main(input_file, output_path):
+def main(input_file, output_prefix):
     freq_instructs = dict(extract_instructions(input_file))
-    write_to_csv(freq_instructs, output_path)
-    print_bar_chart(output_path, freq_instructs)
-    print_pie_chart(output_path, freq_instructs)
+    write_to_csv(freq_instructs, output_prefix)
+    print_bar_chart(output_prefix, freq_instructs)
+    print_pie_chart(output_prefix, freq_instructs)
 
 if __name__ == "__main__":
     import sys

@@ -60,7 +60,7 @@ file(MAKE_DIRECTORY ${RESULT_DIR})
 
 set(EXECUTABLE main)
 
-set(OBJDUMP_FILE ${LOG_DIR}/objdump.txt)
+set(OBJDUMP_FILE ${LOG_DIR}/"${EXECUTABLE}-objdump.txt")
 
 add_custom_command(OUTPUT ${OBJDUMP_FILE}
     COMMAND ${OBJDUMP} -d $<TARGET_FILE:${EXECUTABLE}> > ${OBJDUMP_FILE}
@@ -84,7 +84,7 @@ add_custom_target(python-install-libraries
 ### Python find addresses from objdump
 set(PYTHON_OBJDUMP ${PROJECT_SOURCE_DIR}/scripts/objdump_parser.py)
 set(PY_REQ_FILE ${PROJECT_SOURCE_DIR}/py_requirements.txt)
-set(SPIKE_CMD_FILE ${LOG_DIR}/spike-cmd.txt)
+set(SPIKE_CMD_FILE ${LOG_DIR}/"${EXECUTABLE}-spike-cmd.txt")
 
 
 ### Extract addresses from current executable.
@@ -98,7 +98,7 @@ add_custom_target(python-spike-cmd
 
 
 ## Spike log Command
-set(SPIKE_LOG_FILE ${LOG_DIR}/spike-log.txt)
+set(SPIKE_LOG_FILE ${LOG_DIR}/"${EXECUTABLE}-spike-log.txt")
 
 add_custom_command(OUTPUT ${SPIKE_LOG_FILE}
     COMMAND spike -d -l --debug-cmd=${SPIKE_CMD_FILE} --log=${SPIKE_LOG_FILE} --isa=RV32IMAFDC
@@ -112,7 +112,7 @@ add_custom_target(spike_log
 
 ### Extract instructions from Spike log
 set(PYTHON_SPIKE_PARSER ${PROJECT_SOURCE_DIR}/scripts/spike_parser.py)
-set(PYTHON_FREQ_FILE ${RESULT_DIR}/instruction_freq.csv)
+set(PYTHON_FREQ_FILE ${RESULT_DIR}/${EXECUTABLE}) # TODO: Change this name
 
 add_custom_command(OUTPUT ${PYTHON_FREQ_FILE}
     COMMAND python3 ${PYTHON_SPIKE_PARSER} ${SPIKE_LOG_FILE} ${PYTHON_FREQ_FILE}
