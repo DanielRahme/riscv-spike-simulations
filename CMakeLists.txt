@@ -122,3 +122,12 @@ foreach(targetsourcefile ${SOURCE_FILES})
     )
 endforeach(targetsourcefile ${SOURCE_FILES})
 
+
+### Results of all targets
+set(RESULT_PREFIX ${RESULT_DIR}/)
+set(RESULT_FILES ${SOURCE_FILES})
+list(TRANSFORM RESULT_FILES REPLACE ".c" "")
+list(TRANSFORM RESULT_FILES PREPEND ${RESULT_PREFIX})
+add_custom_target(results
+    DEPENDS ${RESULT_FILES}
+)
