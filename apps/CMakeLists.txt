@@ -1,9 +1,10 @@
 # CMakeLists file for apps executables
 
-### Add executables to MY_APPS list below to compile
-set(MY_APPS
+### Add executables to SOURCE_FILES list below to compile and simulate
+set(SOURCE_FILES
     main.c
     mat_mult.c
+    CACHE INTERNAL ""
 )
 
 set(MY_LIBS
@@ -31,7 +32,7 @@ set(C_FLAGS
     -flto
 )
 
-foreach(testsourcefile ${MY_APPS})
+foreach(testsourcefile ${SOURCE_FILES})
     #Simple string replace, to cut off .cpp.
     string(REPLACE ".c" "" testname ${testsourcefile})
 
@@ -41,4 +42,4 @@ foreach(testsourcefile ${MY_APPS})
     target_link_options(${testname} PRIVATE -Wl,--gc-sections)
     target_link_libraries(${testname} PRIVATE ${MY_LIBS})
     target_compile_options(${testname} PRIVATE ${C_FLAGS})
-endforeach(testsourcefile ${MY_APPS})
+endforeach(testsourcefile ${SOURCE_FILES})
