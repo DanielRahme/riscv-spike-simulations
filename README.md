@@ -25,6 +25,10 @@ Build and install after configuration. Might take some time so grab a coffee or 
 	$ mkdir build
 	$ cd build
 	$ cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/riscv.cmake ..
-	$ make python-extract-instructions
+	$ make results
+
+> For debugging use ``VERBOSE=1`` and to utilize n-number of cores use ``-jn``.
+
+        $ make results VERBOSE=1 -j8
 
 The results will be in the ``/build/results`` folder
