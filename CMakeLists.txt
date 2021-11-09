@@ -26,9 +26,6 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 ################################################################################
 #################### PACKAGES AND FILES
 ################################################################################
-#include(${PROJECT_SOURCE_DIR}/cmake/riscv.cmake)    # RISCV GCC toolchain
-#set(CMAKE_TOOLCHAIN_FILE ${PROJECT_SOURCE_DIR}/cmake/riscv.cmake)
-
 include(FetchContent)
 include(ExternalProject)    
 
@@ -54,6 +51,7 @@ file(MAKE_DIRECTORY ${RESULT_DIR})
 add_custom_command(OUTPUT py_req_install.stamp
     COMMAND python3 -m pip install -U -r ${PY_REQ_FILE}
     COMMAND touch ${CMAKE_BINARY_DIR}/py_req_install.stamp
+    DEPENDS ${PY_REQ_FILE}
 )
 add_custom_target(python-install-libraries
     DEPENDS py_req_install.stamp
@@ -71,10 +69,6 @@ foreach(targetsourcefile ${SOURCE_FILES})
         COMMAND ${OBJDUMP} -d $<TARGET_FILE:${targetsource}> > ${OBJDUMP_FILE}
         DEPENDS ${targetsource}
     )
-    add_custom_target("objdump-${targetsource}"
-        DEPENDS ${OBJDUMP_FILE}
-    )
-
 
     ### Python find addresses from objdump
     set(PYTHON_OBJDUMP ${PROJECT_SOURCE_DIR}/scripts/objdump_parser.py)
@@ -85,10 +79,6 @@ foreach(targetsourcefile ${SOURCE_FILES})
         COMMAND python3 ${PYTHON_OBJDUMP} ${OBJDUMP_FILE} ${SPIKE_CMD_FILE}
         DEPENDS ${OBJDUMP_FILE}
     )
-    add_custom_target("python-spike-cmd-${targetsource}"
-        DEPENDS ${SPIKE_CMD_FILE}
-    )
-
 
     ### Spike simulation
     set(SPIKE_LOG_FILE ${LOG_DIR}/${targetsource}-spike-log.txt)
@@ -98,22 +88,21 @@ foreach(targetsourcefile ${SOURCE_FILES})
         $<TARGET_FILE:pk_exe> $<TARGET_FILE:${targetsource}>
         DEPENDS ${targetsource} pk_exe ${SPIKE_CMD_FILE}
     )
-    add_custom_target("spike-log-${targetsource}"
-        DEPENDS ${SPIKE_LOG_FILE}
-    )
-
 
     ### Extract instructions from Spike log
     set(PYTHON_SPIKE_PARSER ${PROJECT_SOURCE_DIR}/scripts/spike_parser.py)
-    set(PYTHON_FREQ_FILE ${RESULT_DIR}/${targetsource}) # TODO: Change this name
+    set(PYTHON_FREQ_FILE ${RESULT_DIR}/${targetsource})
 
     add_custom_command(OUTPUT ${PYTHON_FREQ_FILE}
         COMMAND python3 ${PYTHON_SPIKE_PARSER} ${SPIKE_LOG_FILE} ${PYTHON_FREQ_FILE}
         DEPENDS ${SPIKE_LOG_FILE}
     )
-    add_custom_target("python-extract-instructions-${targetsource}"
-        DEPENDS ${PYTHON_FREQ_FILE}
-    )
+
+    ### DEBUG
+    #add_custom_target("objdump-${targetsource}" DEPENDS ${OBJDUMP_FILE})
+    #add_custom_target("python-spike-cmd-${targetsource}" DEPENDS ${SPIKE_CMD_FILE})
+    #add_custom_target("spike-log-${targetsource}" DEPENDS ${SPIKE_LOG_FILE})
+    #add_custom_target("python-extract-instructions-${targetsource}" DEPENDS ${PYTHON_FREQ_FILE})
 endforeach(targetsourcefile ${SOURCE_FILES})
 
 
