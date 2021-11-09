@@ -13,7 +13,6 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/mo
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME) 
      set(CMAKE_CXX_EXTENSIONS OFF)   # Let's nicely support folders in IDEs   
      set_property(GLOBAL PROPERTY USE_FOLDERS ON)   
-     include(CTest)   # Docs only available if this is the main app   
 
      find_package(Doxygen)   
      if(Doxygen_FOUND)  
@@ -23,10 +22,6 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
      endif() 
  endif() 
  
-if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME OR MODERN_CMAKE_BUILD_TESTING)    
-    AND BUILD_TESTING)   
-    add_subdirectory(tests) 
-endif()
 
 ################################################################################
 #################### PACKAGES AND FILES
@@ -41,7 +36,6 @@ find_package(CMSIS)
 find_package(Pk)        # Proxy-kernel
 find_package(Spike)     # Spike simulator
 
-add_subdirectory(src)
 add_subdirectory(apps)
 
 find_program(OBJDUMP riscv64-unknown-elf-objdump)

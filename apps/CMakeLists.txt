@@ -8,7 +8,6 @@ set(SOURCE_FILES
 )
 
 set(MY_LIBS
-    distance_library
     riscv_cmsis_dsp_lib
 )
 

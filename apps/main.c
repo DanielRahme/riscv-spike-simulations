@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include <math.h>
-#include <distance/distance.h>
 #include <riscv_dsp/riscv_math.h>
 #include <riscv_dsp/riscv_const_structs.h>
 
