@@ -48,6 +48,8 @@ file(MAKE_DIRECTORY ${RESULT_DIR})
 ################################################################################
 
 ### Install Python modules used in this project
+set(PY_REQ_FILE ${PROJECT_SOURCE_DIR}/py_requirements.txt)
+
 add_custom_command(OUTPUT py_req_install.stamp
     COMMAND python3 -m pip install -U -r ${PY_REQ_FILE}
     COMMAND touch ${CMAKE_BINARY_DIR}/py_req_install.stamp
@@ -72,7 +74,6 @@ foreach(targetsourcefile ${SOURCE_FILES})
 
     ### Python find addresses from objdump
     set(PYTHON_OBJDUMP ${PROJECT_SOURCE_DIR}/scripts/objdump_parser.py)
-    set(PY_REQ_FILE ${PROJECT_SOURCE_DIR}/py_requirements.txt)
     set(SPIKE_CMD_FILE ${LOG_DIR}/${targetsource}-spike-cmd.txt)
 
     add_custom_command(OUTPUT ${SPIKE_CMD_FILE}
