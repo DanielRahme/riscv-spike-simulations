@@ -2,3 +2,4 @@
 
 ## Librareis
 matplotlib
+numpy
