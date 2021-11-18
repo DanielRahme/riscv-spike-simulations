@@ -33,6 +33,7 @@ find_package(CMSIS)
 find_package(Pk)        # Proxy-kernel
 find_package(Spike)     # Spike simulator
 
+add_subdirectory(lib)
 add_subdirectory(apps)
 
 find_program(OBJDUMP riscv64-unknown-elf-objdump)

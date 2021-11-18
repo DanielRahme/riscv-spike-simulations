@@ -23,11 +23,12 @@ def create_h_file(outfile_path):
         f.writelines("#define FFT_INPUT_ARRAY_H") 
         f.write('\n')
         f.write('\n')
+        f.write('\n')
 
         fft_points = list(2**x for x in range(6, 14))
 
         for fp in fft_points: # power of 2
-            f.writelines("extern const float32_t input_f32_fft_" + str(fp) + "[" +
+            f.writelines("extern float input_f32_fft_" + str(fp) + "[" +
                     str(2 * fp) + "];")
             f.write('\n')
 
@@ -41,11 +42,14 @@ def create_c_file(fft_size, outfile_path, samples):
 
     with open(outfile, 'w') as f:
         ## Headers and definition
-        f.writelines("#include <fft_input_array.c>") 
+        f.write('\n')
+        f.writelines("#include <fft_input_array.h>") 
+        f.write('\n')
+        f.write('\n')
         f.write('\n')
 
         for fft_size in fft_points:
-            f.writelines("float32_t input_f32_fft_" + str(fft_size) + "[" + str(2*fft_size) + "] = {")
+            f.writelines("float input_f32_fft_" + str(fft_size) + "[" + str(2*fft_size) + "] = {")
             f.write('\n')
 
             for s in samples:

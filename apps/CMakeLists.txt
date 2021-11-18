@@ -4,11 +4,13 @@
 set(SOURCE_FILES
     main.c
     mat_mult.c
+    cfft64.c
     CACHE INTERNAL ""
 )
 
 set(MY_LIBS
     riscv_cmsis_dsp_lib
+    fft_arrays
 )
 
 set(C_FLAGS
