@@ -5,6 +5,12 @@ set(SOURCE_FILES
     main.c
     mat_mult.c
     cfft64.c
+    cfft128.c
+    cfft256.c
+    cfft512.c
+    cfft1024.c
+    cfft2048.c
+    cfft4096.c
     CACHE INTERNAL ""
 )
 
