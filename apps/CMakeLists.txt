@@ -2,8 +2,8 @@
 
 ### Add executables to SOURCE_FILES list below to compile and simulate
 set(SOURCE_FILES
-    main.c
-    mat_mult.c
+    #main.c
+    #mat_mult.c
     cfft64.c
     cfft128.c
     cfft256.c
