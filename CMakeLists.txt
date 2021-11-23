@@ -62,6 +62,8 @@ add_custom_target(python-install-libraries
 
 ### The result process: objectdump -> find address -> simulate -> print result
 # SOURCE_FILES lists all target source files from apps/CMakeLists.txt file
+set(RESULT_CSV_FILES "")
+
 foreach(targetsourcefile ${SOURCE_FILES})
     string(REPLACE ".c" "" targetsource ${targetsourcefile})
 
@@ -93,26 +95,33 @@ foreach(targetsourcefile ${SOURCE_FILES})
 
     ### Extract instructions from Spike log
     set(PYTHON_SPIKE_PARSER ${PROJECT_SOURCE_DIR}/scripts/spike_parser.py)
-    set(PYTHON_FREQ_FILE ${RESULT_DIR}/${targetsource})
+    set(FREQ_FILE_PATH ${RESULT_DIR}/${targetsource})
 
-    add_custom_command(OUTPUT ${PYTHON_FREQ_FILE}
-        COMMAND python3 ${PYTHON_SPIKE_PARSER} ${SPIKE_LOG_FILE} ${PYTHON_FREQ_FILE}
+    add_custom_command(OUTPUT ${FREQ_FILE_PATH}
+        COMMAND python3 ${PYTHON_SPIKE_PARSER} ${SPIKE_LOG_FILE} ${FREQ_FILE_PATH}
         DEPENDS ${SPIKE_LOG_FILE}
     )
+
+    ### Calculate cycles and results
+    set(CALC_RESULT_SCRIPT ${PROJECT_SOURCE_DIR}/scripts/calc_cycles.py)
+    set(FREQ_FILE ${RESULT_DIR}/${targetsource}-freq-instruct.csv)
+    set(RESULT_CSV_FILE ${RESULT_DIR}/${targetsource}-results.csv)
+
+
+    add_custom_command(OUTPUT ${RESULT_CSV_FILE}
+        COMMAND python3 ${CALC_RESULT_SCRIPT} ${FREQ_FILE} ${RESULT_DIR}/
+        DEPENDS ${FREQ_FILE_PATH}
+    )
+
+    list(APPEND RESULT_CSV_FILES ${RESULT_CSV_FILE})
 
     ### DEBUG
     #add_custom_target("objdump-${targetsource}" DEPENDS ${OBJDUMP_FILE})
     #add_custom_target("python-spike-cmd-${targetsource}" DEPENDS ${SPIKE_CMD_FILE})
     #add_custom_target("spike-log-${targetsource}" DEPENDS ${SPIKE_LOG_FILE})
-    #add_custom_target("python-extract-instructions-${targetsource}" DEPENDS ${PYTHON_FREQ_FILE})
+    #add_custom_target("python-extract-instructions-${targetsource}" DEPENDS ${FREQ_FILE_PATH})
 endforeach(targetsourcefile ${SOURCE_FILES})
 
-
-### Results of all targets
-set(RESULT_PREFIX ${RESULT_DIR}/)
-set(RESULT_FILES ${SOURCE_FILES})
-list(TRANSFORM RESULT_FILES REPLACE ".c" "")
-list(TRANSFORM RESULT_FILES PREPEND ${RESULT_PREFIX})
 add_custom_target(results
-    DEPENDS ${RESULT_FILES}
+    DEPENDS ${RESULT_CSV_FILES}
 )
