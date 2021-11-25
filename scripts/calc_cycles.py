@@ -81,13 +81,14 @@ def write_to_csv(in_file, count, cycles, file_path):
             w.writerow([test_case,count,cycles])
 
 
-def main(input_file, output_prefix):
+def main(input_file):
     instructs = read_instruct_csv(input_file)
     inst_count = sum(instructs.values())
     cycles = calc_cycles(instructs)
-    write_to_csv(input_file, inst_count, cycles, output_prefix)
+    #write_to_csv(input_file, inst_count, cycles, output_prefix)
+    print(input_file + "," + str(inst_count) + "," + str(cycles))
 
 
 if __name__ == "__main__":
     import sys
-    main(sys.argv[1], sys.argv[2])
+    main(sys.argv[1])

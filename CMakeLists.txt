@@ -62,7 +62,7 @@ add_custom_target(python-install-libraries
 
 ### The result process: objectdump -> find address -> simulate -> print result
 # SOURCE_FILES lists all target source files from apps/CMakeLists.txt file
-set(RESULT_CSV_FILES "")
+set(TEST_RESULTS "")
 
 foreach(targetsourcefile ${SOURCE_FILES})
     string(REPLACE ".c" "" targetsource ${targetsourcefile})
@@ -95,33 +95,41 @@ foreach(targetsourcefile ${SOURCE_FILES})
 
     ### Extract instructions from Spike log
     set(PYTHON_SPIKE_PARSER ${PROJECT_SOURCE_DIR}/scripts/spike_parser.py)
-    set(FREQ_FILE_PATH ${RESULT_DIR}/${targetsource})
+    set(INSTR_COUNT_PATH ${RESULT_DIR}/${targetsource})
 
-    add_custom_command(OUTPUT ${FREQ_FILE_PATH}
-        COMMAND python3 ${PYTHON_SPIKE_PARSER} ${SPIKE_LOG_FILE} ${FREQ_FILE_PATH}
+    add_custom_command(OUTPUT ${INSTR_COUNT_PATH}
+        COMMAND python3 ${PYTHON_SPIKE_PARSER} ${SPIKE_LOG_FILE} ${INSTR_COUNT_PATH}
         DEPENDS ${SPIKE_LOG_FILE}
     )
 
     ### Calculate cycles and results
     set(CALC_RESULT_SCRIPT ${PROJECT_SOURCE_DIR}/scripts/calc_cycles.py)
-    set(FREQ_FILE ${RESULT_DIR}/${targetsource}-freq-instruct.csv)
-    set(RESULT_CSV_FILE ${RESULT_DIR}/${targetsource}-results.csv)
+    set(INSTR_COUNT_FILE ${RESULT_DIR}/${targetsource}-freq-instruct.csv)
+    set(TEST_RESULT_FILE ${RESULT_DIR}/${targetsource}-results.csv)
 
 
-    add_custom_command(OUTPUT ${RESULT_CSV_FILE}
-        COMMAND python3 ${CALC_RESULT_SCRIPT} ${FREQ_FILE} ${RESULT_DIR}/
-        DEPENDS ${FREQ_FILE_PATH}
+    add_custom_command(OUTPUT ${TEST_RESULT_FILE}
+        COMMAND python3 ${CALC_RESULT_SCRIPT} ${INSTR_COUNT_FILE} > ${TEST_RESULT_FILE}
+        DEPENDS ${INSTR_COUNT_PATH}
     )
 
-    list(APPEND RESULT_CSV_FILES ${RESULT_CSV_FILE})
+    list(APPEND TEST_RESULTS ${TEST_RESULT_FILE})
 
     ### DEBUG
     #add_custom_target("objdump-${targetsource}" DEPENDS ${OBJDUMP_FILE})
     #add_custom_target("python-spike-cmd-${targetsource}" DEPENDS ${SPIKE_CMD_FILE})
     #add_custom_target("spike-log-${targetsource}" DEPENDS ${SPIKE_LOG_FILE})
-    #add_custom_target("python-extract-instructions-${targetsource}" DEPENDS ${FREQ_FILE_PATH})
+    #add_custom_target("python-extract-instructions-${targetsource}" DEPENDS ${INSTR_COUNT_PATH})
 endforeach(targetsourcefile ${SOURCE_FILES})
 
+set(RESULT_FILE ${RESULT_DIR}/result.csv)
+
+add_custom_command(OUTPUT ${RESULT_FILE}
+    COMMAND cmake -E echo "test,count,cycles" > ${RESULT_FILE}
+    COMMAND cat ${TEST_RESULTS} >> ${RESULT_FILE}
+    DEPENDS ${TEST_RESULTS}
+)
+
 add_custom_target(results
-    DEPENDS ${RESULT_CSV_FILES}
+    DEPENDS ${RESULT_FILE}
 )
