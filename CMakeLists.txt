@@ -50,14 +50,15 @@ file(MAKE_DIRECTORY ${RESULT_DIR})
 
 ### Install Python modules used in this project
 set(PY_REQ_FILE ${PROJECT_SOURCE_DIR}/py_requirements.txt)
+set(PY_REQUIREMENTS py_req_install.stamp)
 
-add_custom_command(OUTPUT py_req_install.stamp
+add_custom_command(OUTPUT ${PY_REQUIREMENTS}
     COMMAND python3 -m pip install -U -r ${PY_REQ_FILE}
-    COMMAND touch ${CMAKE_BINARY_DIR}/py_req_install.stamp
+    COMMAND touch ${CMAKE_BINARY_DIR}/${PY_REQUIREMENTS}
     DEPENDS ${PY_REQ_FILE}
 )
 add_custom_target(python-install-libraries
-    DEPENDS py_req_install.stamp
+    DEPENDS ${PY_REQUIREMENTS}
 )
 
 ### The result process: objectdump -> find address -> simulate -> print result
@@ -88,7 +89,7 @@ foreach(targetsourcefile ${SOURCE_FILES})
     set(SPIKE_LOG_FILE ${LOG_DIR}/${targetsource}-spike-log.txt)
 
     add_custom_command(OUTPUT ${SPIKE_LOG_FILE}
-        COMMAND spike -d -l --debug-cmd=${SPIKE_CMD_FILE} --log=${SPIKE_LOG_FILE} --isa=RV32IMAFDC
+        COMMAND $<TARGET_FILE:spike> -d -l --debug-cmd=${SPIKE_CMD_FILE} --log=${SPIKE_LOG_FILE} --isa=RV32IMAFDC
         $<TARGET_FILE:pk_exe> $<TARGET_FILE:${targetsource}>
         DEPENDS ${targetsource} pk_exe ${SPIKE_CMD_FILE}
     )
@@ -99,7 +100,7 @@ foreach(targetsourcefile ${SOURCE_FILES})
 
     add_custom_command(OUTPUT ${INSTR_COUNT_PATH}
         COMMAND python3 ${PYTHON_SPIKE_PARSER} ${SPIKE_LOG_FILE} ${INSTR_COUNT_PATH}
-        DEPENDS ${SPIKE_LOG_FILE}
+        DEPENDS ${SPIKE_LOG_FILE} ${PY_REQUIREMENTS}
     )
 
     ### Calculate cycles and results
@@ -110,7 +111,7 @@ foreach(targetsourcefile ${SOURCE_FILES})
 
     add_custom_command(OUTPUT ${TEST_RESULT_FILE}
         COMMAND python3 ${CALC_RESULT_SCRIPT} ${INSTR_COUNT_FILE} > ${TEST_RESULT_FILE}
-        DEPENDS ${INSTR_COUNT_PATH}
+        DEPENDS ${INSTR_COUNT_PATH} ${PY_REQUIREMENTS}
     )
 
     list(APPEND TEST_RESULTS ${TEST_RESULT_FILE})
