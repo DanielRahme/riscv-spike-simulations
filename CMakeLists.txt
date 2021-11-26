@@ -53,7 +53,7 @@ set(PY_REQ_FILE ${PROJECT_SOURCE_DIR}/py_requirements.txt)
 set(PY_REQUIREMENTS py_req_install.stamp)
 
 add_custom_command(OUTPUT ${PY_REQUIREMENTS}
-    COMMAND python3 -m pip install -U -r ${PY_REQ_FILE}
+    COMMAND python3 -m pip install --user -U -r ${PY_REQ_FILE}
     COMMAND touch ${CMAKE_BINARY_DIR}/${PY_REQUIREMENTS}
     DEPENDS ${PY_REQ_FILE}
 )
