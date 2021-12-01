@@ -2,8 +2,6 @@
 
 ### Add executables to SOURCE_FILES list below to compile and simulate
 set(SOURCE_FILES
-    #main.c
-    #mat_mult.c
     cfft64.c
     cfft128.c
     cfft256.c
@@ -11,7 +9,13 @@ set(SOURCE_FILES
     cfft1024.c
     cfft2048.c
     cfft4096.c
+    rfft_q15_64.c
+    rfft_q15_128.c
+    rfft_q15_256.c
     rfft_q15_512.c
+    rfft_q15_1024.c
+    rfft_q15_2048.c
+    rfft_q15_4096.c
     CACHE INTERNAL ""
 )
 
