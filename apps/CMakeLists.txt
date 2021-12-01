@@ -11,6 +11,7 @@ set(SOURCE_FILES
     cfft1024.c
     cfft2048.c
     cfft4096.c
+    rfft_q15_512.c
     CACHE INTERNAL ""
 )
 
