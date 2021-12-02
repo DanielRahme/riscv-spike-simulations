@@ -64,13 +64,17 @@ def calc_cycles(instructs):
 
 
 def main(input_file):
+    import os
+
     clock_freq_mhz = 200 
+    case_name = os.path.basename(input_file).removesuffix("-freq-instruct.csv")
 
     instructs = read_instruct_csv(input_file)
     inst_count = sum(instructs.values())
     cycles = calc_cycles(instructs)
     exec_time = cycles / clock_freq_mhz
-    print(input_file + "," + str(inst_count) + "," + str(cycles) + "," + str(exec_time))
+
+    print(case_name + "," + str(inst_count) + "," + str(cycles) + "," + str(exec_time))
 
 
 if __name__ == "__main__":
