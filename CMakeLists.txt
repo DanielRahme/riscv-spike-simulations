@@ -100,8 +100,8 @@ foreach(targetsourcefile ${SOURCE_FILES})
     set(INSTR_COUNT_PATH ${RESULT_DIR}/${targetsource})
 
     add_custom_command(OUTPUT ${INSTR_COUNT_FILE}
-        COMMAND python3 ${PYTHON_SPIKE_PARSER} ${SPIKE_LOG_FILE} ${INSTR_COUNT_PATH} > ${INSTR_COUNT_FILE}
-        DEPENDS ${SPIKE_LOG_FILE} ${PY_REQUIREMENTS}
+        COMMAND python3 ${PYTHON_SPIKE_PARSER} ${SPIKE_LOG_FILE} > ${INSTR_COUNT_FILE}
+        DEPENDS ${SPIKE_LOG_FILE} ${PY_REQUIREMENTS} ${PYTHON_SPIKE_PARSER}
     )
 
     ### Calculate cycles and results
@@ -111,7 +111,7 @@ foreach(targetsourcefile ${SOURCE_FILES})
 
     add_custom_command(OUTPUT ${TEST_RESULT_FILE}
         COMMAND python3 ${CALC_RESULT_SCRIPT} ${INSTR_COUNT_FILE} > ${TEST_RESULT_FILE}
-        DEPENDS ${INSTR_COUNT_FILE} ${PY_REQUIREMENTS}
+        DEPENDS ${INSTR_COUNT_FILE} ${PY_REQUIREMENTS} ${CALC_RESULT_SCRIPT}
     )
 
     list(APPEND TEST_RESULTS ${TEST_RESULT_FILE})

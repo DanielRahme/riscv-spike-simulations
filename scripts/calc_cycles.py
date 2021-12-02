@@ -1,5 +1,6 @@
 import csv
 import os.path
+import matplotlib.pyplot as plt
 
 float_instructions = {
 # Sign inject
@@ -30,6 +31,8 @@ float_instructions = {
         'fmv.s': 3,
 
 # Load Store
+        'lw': 2,
+        'c.lw': 2,
         'flw': 2,
         'fsw': 2,
         'c.flw': 2,
@@ -62,6 +65,32 @@ def calc_cycles(instructs):
         return cycles
 
 
+def print_bar_chart(file_prefix, data):
+    names = list(data.keys())
+    values = list(data.values())
+
+    fig, ax = plt.subplots()
+    ax.bar(names, values)
+
+    fig.suptitle('Instruction frequency')
+    plt.xticks(rotation=90)
+    plt.tick_params(axis='x', which='major', labelsize=7)
+    ax.set_ylabel('Freq')
+    ax.set_xlabel('Instruction')
+
+    bar_chart_file = file_prefix + "-barchart.png"
+    plt.savefig(bar_chart_file, dpi=300)
+
+def print_pie_chart(file_prefix, data):
+    labels = list(data.keys())
+    sizes = list(data.values())
+
+    fig, ax = plt.subplots()
+    ax.pie(sizes, labels=labels, autopct='%1.1f%%', shadow=True, startangle=90)
+    ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+
+    pie_chart_file = file_prefix + "-piechart.png"
+    plt.savefig(pie_chart_file, dpi=300)
 
 def main(input_file):
     import os
@@ -75,6 +104,8 @@ def main(input_file):
     exec_time = cycles / clock_freq_mhz
 
     print(case_name + "," + str(inst_count) + "," + str(cycles) + "," + str(exec_time))
+    print_bar_chart(input_file, instructs)
+    print_pie_chart(input_file, instructs)
 
 
 if __name__ == "__main__":
