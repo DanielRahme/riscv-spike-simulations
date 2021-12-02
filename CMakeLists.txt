@@ -96,22 +96,22 @@ foreach(targetsourcefile ${SOURCE_FILES})
 
     ### Extract instructions from Spike log
     set(PYTHON_SPIKE_PARSER ${PROJECT_SOURCE_DIR}/scripts/spike_parser.py)
+    set(INSTR_COUNT_FILE ${RESULT_DIR}/${targetsource}-freq-instruct.csv)
     set(INSTR_COUNT_PATH ${RESULT_DIR}/${targetsource})
 
-    add_custom_command(OUTPUT ${INSTR_COUNT_PATH}
-        COMMAND python3 ${PYTHON_SPIKE_PARSER} ${SPIKE_LOG_FILE} ${INSTR_COUNT_PATH}
+    add_custom_command(OUTPUT ${INSTR_COUNT_FILE}
+        COMMAND python3 ${PYTHON_SPIKE_PARSER} ${SPIKE_LOG_FILE} ${INSTR_COUNT_PATH} > ${INSTR_COUNT_FILE}
         DEPENDS ${SPIKE_LOG_FILE} ${PY_REQUIREMENTS}
     )
 
     ### Calculate cycles and results
     set(CALC_RESULT_SCRIPT ${PROJECT_SOURCE_DIR}/scripts/calc_cycles.py)
-    set(INSTR_COUNT_FILE ${RESULT_DIR}/${targetsource}-freq-instruct.csv)
     set(TEST_RESULT_FILE ${RESULT_DIR}/${targetsource}-results.csv)
 
 
     add_custom_command(OUTPUT ${TEST_RESULT_FILE}
         COMMAND python3 ${CALC_RESULT_SCRIPT} ${INSTR_COUNT_FILE} > ${TEST_RESULT_FILE}
-        DEPENDS ${INSTR_COUNT_PATH} ${PY_REQUIREMENTS}
+        DEPENDS ${INSTR_COUNT_FILE} ${PY_REQUIREMENTS}
     )
 
     list(APPEND TEST_RESULTS ${TEST_RESULT_FILE})

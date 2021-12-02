@@ -28,14 +28,9 @@ def extract_instructions(filename):
 
     return collections.Counter(instructs)
 
-def write_to_csv(freq_instructs, file_prefix):
-    import csv
-    output_filename = file_prefix + "-freq-instruct.csv"
-    with open(output_filename, 'w') as f:
-        w = csv.writer(f)
-        w.writerows(freq_instructs.items())
-
-    print ("Created file " + output_filename)
+def print_results(freq_instructs):
+    for op, count in freq_instructs.items():
+        print(op + "," + str(count))
 
 def print_bar_chart(file_prefix, data):
     names = list(data.keys())
@@ -68,7 +63,7 @@ def print_pie_chart(file_prefix, data):
 
 def main(input_file, output_prefix):
     freq_instructs = dict(extract_instructions(input_file))
-    write_to_csv(freq_instructs, output_prefix)
+    print_results(freq_instructs)
     print_bar_chart(output_prefix, freq_instructs)
     print_pie_chart(output_prefix, freq_instructs)
 
