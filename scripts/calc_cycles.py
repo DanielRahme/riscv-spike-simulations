@@ -62,31 +62,15 @@ def calc_cycles(instructs):
         return cycles
 
 
-def write_to_csv(in_file, count, cycles, file_path):
-    output_filename = file_path + "results.csv"
-    test_case = in_file.removesuffix("-freq-instruct.csv")
-
-    file_exists = os.path.exists(output_filename)
-    if (file_exists):
-        # Append results to existing results file
-        with open(output_filename, 'a') as f:
-            w = csv.writer(f)
-            w.writerow([test_case,count,cycles])
-
-    # Write CSV header on first row. Create new CSV.
-    else:
-        with open(output_filename, 'w') as f:
-            w = csv.writer(f)
-            w.writerow(['test','count','cycles'])
-            w.writerow([test_case,count,cycles])
-
 
 def main(input_file):
+    clock_freq_mhz = 200 
+
     instructs = read_instruct_csv(input_file)
     inst_count = sum(instructs.values())
     cycles = calc_cycles(instructs)
-    #write_to_csv(input_file, inst_count, cycles, output_prefix)
-    print(input_file + "," + str(inst_count) + "," + str(cycles))
+    exec_time = cycles / clock_freq_mhz
+    print(input_file + "," + str(inst_count) + "," + str(cycles) + "," + str(exec_time))
 
 
 if __name__ == "__main__":

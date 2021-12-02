@@ -126,7 +126,7 @@ endforeach(targetsourcefile ${SOURCE_FILES})
 set(RESULT_FILE ${RESULT_DIR}/result.csv)
 
 add_custom_command(OUTPUT ${RESULT_FILE}
-    COMMAND cmake -E echo "test,count,cycles" > ${RESULT_FILE}
+    COMMAND cmake -E echo "test,count,cycles,time_us @200MHz" > ${RESULT_FILE}
     COMMAND cat ${TEST_RESULTS} >> ${RESULT_FILE}
     DEPENDS ${TEST_RESULTS}
 )
