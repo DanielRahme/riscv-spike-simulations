@@ -2,13 +2,13 @@
 
 ### Add executables to SOURCE_FILES list below to compile and simulate
 set(SOURCE_FILES
-    cfft64.c
-    cfft128.c
-    cfft256.c
-    cfft512.c
-    cfft1024.c
-    cfft2048.c
-    cfft4096.c
+    cfft_f32_64.c
+    cfft_f32_128.c
+    cfft_f32_256.c
+    cfft_f32_512.c
+    cfft_f32_1024.c
+    cfft_f32_2048.c
+    cfft_f32_4096.c
     rfft_q15_64.c
     rfft_q15_128.c
     rfft_q15_256.c
