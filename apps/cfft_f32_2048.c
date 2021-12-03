@@ -7,7 +7,7 @@
 
 uint32_t fftSize = 2048;
 uint32_t ifftFlag = 0;
-uint32_t doBitReverse = 1;
+uint32_t doBitReverse = 0;
 
 int main()
 {
