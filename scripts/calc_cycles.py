@@ -1,6 +1,7 @@
 import csv
 import os.path
 import matplotlib.pyplot as plt
+import numpy as np
 
 float_instructions = {
 # Sign inject
@@ -71,7 +72,6 @@ def print_bar_chart(file_prefix, data):
 
     fig, ax = plt.subplots()
     ax.bar(names, values)
-
     fig.suptitle('Instruction frequency')
     plt.xticks(rotation=90)
     plt.tick_params(axis='x', which='major', labelsize=7)
@@ -82,12 +82,76 @@ def print_bar_chart(file_prefix, data):
     plt.savefig(bar_chart_file, dpi=300)
 
 def print_pie_chart(file_prefix, data):
-    labels = list(data.keys())
-    sizes = list(data.values())
+    count_lsm = 0
+    count_as = 0
+    count_mac = 0
+    count_muldiv = 0
+    count_branch = 0
+    count_logical = 0
+    count_app = 0
+    count_other = 0
+    count_not_def = 0
+
+    ## The categories
+    load_store_move = ["c.sw","c.flwsp","c.fswsp","li","c.swsp","c.lwsp", "c.flw", "c.fsw", "c.lw", "c.mv", "c.li", "c.lui","lui", "lb", "lh", "lw", "lbu", "lhu", "sb",
+            "sh", "sw", "flw", "fsw", "fmv.x.w", "fmv.w.x", "mv" ]
+
+    add_sub = ["c.add","c.addi16sp", "auipc", "c.addi","addi", "add","c.sub", "sub", "fadd.s",
+            "fsub.s", "c.addi4spn" ]
+    mac = ["fmadd.s", "fmsub.s", "fnmsub.s", "fnmadd.s"]
+    mult_div = ["mul","mulh","mulhsu","mulhu","div","divu","rem","remu","fmul.s","fdiv.s"]
+    branch = ["c.bnz","c.j","beqz","c.jal","jal", "jalr", "beq", "bne", "blt", "bge", "bltu",
+            "bgeu", "c.jalr", "c.jr", "c.beqz", "bnez", "c.bnez"
+            ]
+    logical = ["slti","sltiu","xori","ori","andi","c.slli","slli","srli","srai","sll","slt","sltu"
+            , "xor","srl","sra","or","and","feq.s","flt.s","fle.s", "c.or", "c.and", "c.xor",
+            "c.andi", "c.srai", "c.srli", "snez" ] 
+    application = ["ret","fence", "ecall", "ebreak", "c.ebreak", "c.nop" ]
+    other = ["fsqrt.s","fsgnj.s","fsgnjn.s","fsgnjx.s","fmin.s","fmax.s","fcvt.w.s",
+            "fcvt.wu.s","fclass.s","fcvt.s.w","fcvt.s.wu"] 
+
+    for inst, count in data.items():
+        # Single cycle instructions
+        if inst in load_store_move:
+            count_lsm += count
+        elif inst in add_sub:
+            count_as += count
+        elif inst in mac:
+            count_mac += count
+        elif inst in mult_div:
+            count_muldiv += count
+        elif inst in branch:
+            count_branch += count
+        elif inst in logical:
+            count_logical += count
+        elif inst in application:
+            count_app += count
+        elif inst in other:
+            count_other += count
+        else:
+            count_not_def += count
+            print("Instruction <" + inst + "> is not defined in a bin")
+
+
+    labels = ["load/store/move", "add/sub", "mac", "mult/div", "branch", "logical", "application",
+            "other", "not defined"]
+
+    categories = [count_lsm, count_as, count_mac, count_muldiv, count_branch, count_logical, count_app, count_other, count_not_def]
+
+    tot = sum(categories)
+    percent = [100 * x/tot for x in categories]
+    y_pos = np.arange(len(labels))
 
     fig, ax = plt.subplots()
-    ax.pie(sizes, labels=labels, autopct='%1.1f%%', shadow=True, startangle=90)
-    ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+    plt.grid(axis = 'x')
+    ax.barh(y_pos, percent, align='center', height=0.4)
+    ax.set_yticks(y_pos, labels=labels)
+    ax.invert_yaxis()  # labels read top-to-bottom
+    ax.set_xlabel('Percent %')
+    plt.xlim([0, 50])
+
+    for index, value in enumerate(percent):
+        plt.text(value, index, str("{:.2f}".format(value)))
 
     pie_chart_file = file_prefix + "-piechart.png"
     plt.savefig(pie_chart_file, dpi=300)
