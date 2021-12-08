@@ -16,6 +16,7 @@ set(SOURCE_FILES
     rfft_q15_1024.c
     rfft_q15_2048.c
     rfft_q15_4096.c
+    rfft_q15_8192.c
     rfft_f32_64.c
     rfft_f32_128.c
     rfft_f32_256.c
@@ -30,6 +31,7 @@ set(SOURCE_FILES
     rfft_q31_1024.c
     rfft_q31_2048.c
     rfft_q31_4096.c
+    rfft_q31_8192.c
     CACHE INTERNAL ""
 )
 
