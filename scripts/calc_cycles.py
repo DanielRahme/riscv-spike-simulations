@@ -13,6 +13,10 @@ float_instructions = {
 # Arithmetic
         'fadd.s': 2,
         'fsub.s': 2,
+        'remu': 6,
+        'rem': 6,
+        'divu': 6,
+        'div': 6,
         'fdiv.s': 6,
         'fmul.s': 2,
         'fsqrt.s': 6,
@@ -32,6 +36,10 @@ float_instructions = {
         'fmv.s': 3,
 
 # Load Store
+        'lh': 2,
+        'lhu': 2,
+        'lb': 2,
+        'lbu': 2,
         'lw': 2,
         'c.lw': 2,
         'flw': 2,
@@ -93,20 +101,25 @@ def print_pie_chart(file_prefix, data):
     count_not_def = 0
 
     ## The categories
-    load_store_move = ["c.sw","c.flwsp","c.fswsp","li","c.swsp","c.lwsp", "c.flw", "c.fsw", "c.lw", "c.mv", "c.li", "c.lui","lui", "lb", "lh", "lw", "lbu", "lhu", "sb",
-            "sh", "sw", "flw", "fsw", "fmv.x.w", "fmv.w.x", "mv" ]
+    load_store_move = ["c.sw","c.flwsp","c.fswsp","li","c.swsp","c.lwsp", "c.flw", "c.fsw", "c.lw",
+            "c.mv", "c.li", "c.lui","lui", "lb", "lh", "lw", "lbu", "lhu", "sb", "sh", "sw", "flw",
+            "fsw", "fmv.x.w", "fmv.w.x", "mv" ]
 
     add_sub = ["c.add","c.addi16sp", "auipc", "c.addi","addi", "add","c.sub", "sub", "fadd.s",
             "fsub.s", "c.addi4spn" ]
     mac = ["fmadd.s", "fmsub.s", "fnmsub.s", "fnmadd.s"]
+
     mult_div = ["mul","mulh","mulhsu","mulhu","div","divu","rem","remu","fmul.s","fdiv.s"]
+
     branch = ["c.bnz","c.j","beqz","c.jal","jal", "jalr", "beq", "bne", "blt", "bge", "bltu",
             "bgeu", "c.jalr", "c.jr", "c.beqz", "bnez", "c.bnez"
             ]
     logical = ["slti","sltiu","xori","ori","andi","c.slli","slli","srli","srai","sll","slt","sltu"
             , "xor","srl","sra","or","and","feq.s","flt.s","fle.s", "c.or", "c.and", "c.xor",
             "c.andi", "c.srai", "c.srli", "snez" ] 
+
     application = ["ret","fence", "ecall", "ebreak", "c.ebreak", "c.nop" ]
+
     other = ["fsqrt.s","fsgnj.s","fsgnjn.s","fsgnjx.s","fmin.s","fmax.s","fcvt.w.s",
             "fcvt.wu.s","fclass.s","fcvt.s.w","fcvt.s.wu"] 
 
