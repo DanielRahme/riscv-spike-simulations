@@ -9,6 +9,20 @@ set(SOURCE_FILES
     cfft_f32_1024.c
     cfft_f32_2048.c
     cfft_f32_4096.c
+    cfft_q31_64.c
+    cfft_q31_128.c
+    cfft_q31_256.c
+    cfft_q31_512.c
+    cfft_q31_1024.c
+    cfft_q31_2048.c
+    cfft_q31_4096.c
+    cfft_q15_64.c
+    cfft_q15_128.c
+    cfft_q15_256.c
+    cfft_q15_512.c
+    cfft_q15_1024.c
+    cfft_q15_2048.c
+    cfft_q15_4096.c
     rfft_q15_64.c
     rfft_q15_128.c
     rfft_q15_256.c
