@@ -91,7 +91,9 @@ def print_bar_chart(file_prefix, data):
 
 def print_pie_chart(file_prefix, data):
     count_load = 0
+    count_fload = 0
     count_store = 0
+    count_fstore = 0
     count_add = 0
     count_fadd = 0
     count_sub = 0
@@ -108,9 +110,6 @@ def print_pie_chart(file_prefix, data):
 
     ## The categories
     cat_load = [
-            "flw",
-            "c.flw",
-            "c.flwsp",
             "c.lwsp",
             "c.lw",
             "lb",
@@ -120,14 +119,22 @@ def print_pie_chart(file_prefix, data):
             "lhu"
             ]
 
+    cat_fload = [
+            "flw",
+            "c.flw",
+            "c.flwsp"
+            ]
+
     cat_store = [
             "c.sw",
-            "c.fsw",
-            "c.fswsp",
             "c.swsp",
             "sb",
             "sh",
             "sw",
+            ]
+    cat_fstore = [
+            "c.fsw",
+            "c.fswsp",
             "fsw"
             ]
 
@@ -263,8 +270,12 @@ def print_pie_chart(file_prefix, data):
     for inst, count in data.items():
         if inst in cat_load:
             count_load += count
+        elif inst in cat_fload:
+            count_fload += count
         elif inst in cat_store:
             count_store += count
+        elif inst in cat_fstore:
+            count_fstore += count
         elif inst in cat_add:
             count_add += count
         elif inst in cat_fadd:
@@ -291,32 +302,40 @@ def print_pie_chart(file_prefix, data):
             count_logical += count
         elif inst in cat_other:
             count_other += count
-        else:
-            try:
-                raise NameError('Instruction not in a category')
-            except NameError:
-                #print('Not defined instruction found.')
-                raise
 
 
-    labels = [
-        "load", "store", "add" , "fadd", "sub",
-        "fsub" , "addi", "move", "fmove", "fmac",
-        "mult_div", "fmult_div", "branch", "logical", "other"
+    labels_req = ["load", "store", "branch", "addi"]
+    categories_req = [count_load, count_store, count_branch, count_addi]
+
+    labels_rest = [
+        "f.load","f.store", "add" , "f.add", "sub",
+        "f.sub", "move", "f.move", "f.mac",
+        "mult_div", "f.mult_div", "logical", "other"
             ]
 
-    categories = [ 
-            count_load, count_store, count_add, 
+    categories_rest = [ 
+            count_fload, count_fstore, count_add, 
             count_fadd, count_sub, count_fsub, 
-            count_addi, count_move, count_fmove,
+            count_move, count_fmove,
             count_fmac, count_mult_div, count_fmult_div,
-            count_branch, count_logical, count_other
+            count_logical, count_other
             ]
 
-    tot = sum(categories)
-    percent = [100 * x/tot for x in categories]
-    y_pos = np.arange(len(labels))
+    tot = sum(categories_rest) + sum(categories_req)
+    percent_rest = [100 * x/tot for x in categories_rest]
 
+    labels = labels_req
+    percent = [100 * x/tot for x in categories_req]
+    threshold = 6.0
+
+    ### Filter out categories below threshold limit
+    for i in range(len(categories_rest)):
+        if (percent_rest[i] >= threshold):
+            labels.append(labels_rest[i])
+            percent.append(percent_rest[i])
+
+
+    y_pos = np.arange(len(labels))
     ### Plot results
     fig, ax = plt.subplots()
     ax.grid(axis='x', zorder=0)
