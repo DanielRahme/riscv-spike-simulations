@@ -81,8 +81,8 @@ foreach(targetsourcefile ${SOURCE_FILES})
     set(SPIKE_CMD_FILE ${LOG_DIR}/${targetsource}-spike-cmd.txt)
 
     add_custom_command(OUTPUT ${SPIKE_CMD_FILE}
-        COMMAND python3 ${PYTHON_OBJDUMP} ${OBJDUMP_FILE} ${SPIKE_CMD_FILE}
-        DEPENDS ${OBJDUMP_FILE}
+        COMMAND python3 ${PYTHON_OBJDUMP} < ${OBJDUMP_FILE} > ${SPIKE_CMD_FILE}
+        DEPENDS ${OBJDUMP_FILE} ${PYTHON_OBJDUMP}
     )
 
     ### Spike simulation

@@ -1,47 +1,39 @@
 # Find start address of main
 # and return address from main
+import sys
 
 
-def extract_address(filename):
+def extract_address():
     main_found = False
     main_address = ""
     ret_address = ""
 
-    #with open('objdump.txt') as f:
-    with open(filename) as f:
-        for line in f:
-            if (line.find("<main>:") != -1):
-                main_address = line.split()[0]
-                main_found = True
+    for line in sys.stdin:
+        if (line.find("<main>:") != -1):
+            main_address = line.split()[0]
+            main_found = True
 
-            if (main_found and (line.find("ret") != -1)):
-                linesplit = (line.split())
-                ret_address = line.split()[0][:-1]
-                break
+        if (main_found and (line.find("ret") != -1)):
+            linesplit = (line.split())
+            ret_address = line.split()[0][:-1]
+            break
 
     return (main_address, ret_address)
 
 
-
-def create_spike_cmd(outfile, addr_main, addr_ret):
-    with open(outfile, 'w') as f:
-        f.write("until pc 0 " + str(addr_main))
-        f.write('\n')
-        f.write("untiln pc 0 " + str(addr_ret))
-        f.write('\n')
-        f.write("q")
-        f.write('\n')
+def print_spike_cmd(main_addr, ret_addr):
+        print("until pc 0 " + str(main_addr))
+        print("untiln pc 0 " + str(ret_addr))
+        print("q")
     
 
-def main(filename, outfile):
-    addresses = extract_address(filename) 
-    if (addresses[0] == "" or addresses[1] == ""):
+def main():
+    main_addr, ret_addr = extract_address() 
+    if (main_addr == "" or ret_addr == ""):
         print("Warning: Invalid addresses. Check input file is correct!")
     else:
-        create_spike_cmd(outfile, addresses[0], addresses[1])
-        print("File: spike-cmd.txt created")
+        print_spike_cmd(main_addr, ret_addr)
 
 if __name__ == "__main__":
     import sys
-    main(sys.argv[1], sys.argv[2])
-    #main()
+    main()
