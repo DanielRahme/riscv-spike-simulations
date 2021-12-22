@@ -143,17 +143,6 @@ foreach(targetsourcefile ${SOURCE_FILES})
 
     list(APPEND IGROUP_PLOTS ${IGROUP_PLOT})
 
-    ### Calculate cycles and results
-    # set(CALC_RESULT_SCRIPT ${PROJECT_SOURCE_DIR}/scripts/calc_cycles.py)
-    # set(TEST_RESULT_FILE ${RESULT_DIR}/${targetsource}-results.csv)
-
-
-    # add_custom_command(OUTPUT ${TEST_RESULT_FILE}
-    #     COMMAND python3 ${CALC_RESULT_SCRIPT} ${targetsource} < ${INSTR_COUNT_FILE} > ${TEST_RESULT_FILE}
-    #     DEPENDS ${INSTR_COUNT_FILE} ${PY_REQUIREMENTS} ${CALC_RESULT_SCRIPT}
-    # )
-
-
 
     ### DEBUG
     #add_custom_target("objdump-${targetsource}" DEPENDS ${OBJDUMP_FILE})
