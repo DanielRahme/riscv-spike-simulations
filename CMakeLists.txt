@@ -64,6 +64,7 @@ add_custom_target(python-install-libraries
 ### The result process: objectdump -> find address -> simulate -> print result
 # SOURCE_FILES lists all target source files from apps/CMakeLists.txt file
 set(TEST_RESULTS "")
+set(ICOUNT_PLOTS "")
 
 foreach(targetsourcefile ${SOURCE_FILES})
     string(REPLACE ".c" "" targetsource ${targetsourcefile})
@@ -104,17 +105,42 @@ foreach(targetsourcefile ${SOURCE_FILES})
         DEPENDS ${SPIKE_LOG_FILE} ${PY_REQUIREMENTS} ${PYTHON_SPIKE_PARSER}
     )
 
-    ### Calculate cycles and results
-    set(CALC_RESULT_SCRIPT ${PROJECT_SOURCE_DIR}/scripts/calc_cycles.py)
-    set(TEST_RESULT_FILE ${RESULT_DIR}/${targetsource}-results.csv)
+    ### Calculate execution time
+    set(CALC_EXEC_TIME_SCRIPT ${PROJECT_SOURCE_DIR}/scripts/calc_execution_time.py)
+    set(EXEC_TIME_CSV ${RESULT_DIR}/${targetsource}-results.csv)
 
-
-    add_custom_command(OUTPUT ${TEST_RESULT_FILE}
-        COMMAND python3 ${CALC_RESULT_SCRIPT} ${targetsource} < ${INSTR_COUNT_FILE} > ${TEST_RESULT_FILE}
-        DEPENDS ${INSTR_COUNT_FILE} ${PY_REQUIREMENTS} ${CALC_RESULT_SCRIPT}
+    add_custom_command(OUTPUT ${EXEC_TIME_CSV}
+        COMMAND python3 ${CALC_EXEC_TIME_SCRIPT} ${targetsource} < ${INSTR_COUNT_FILE} > ${EXEC_TIME_CSV}
+        DEPENDS ${INSTR_COUNT_FILE} ${PY_REQUIREMENTS} ${CALC_EXEC_TIME_SCRIPT}
     )
 
-    list(APPEND TEST_RESULTS ${TEST_RESULT_FILE})
+
+    list(APPEND TEST_RESULTS ${EXEC_TIME_CSV})
+
+
+    ### Generate instruction count plot
+    set(GENERATE_PLOT_ICOUNT_SCRIPT ${PROJECT_SOURCE_DIR}/scripts/generate_icount_plot.py)
+    set(ICOUNT_PLOT ${RESULT_DIR}/${targetsource}-icount-plot)
+    set(PLOT_PATH ${RESULT_DIR}/)
+
+    add_custom_command(OUTPUT ${ICOUNT_PLOT}
+        COMMAND python3 ${GENERATE_PLOT_ICOUNT_SCRIPT} ${targetsource} ${PLOT_PATH} < ${INSTR_COUNT_FILE}
+        DEPENDS ${INSTR_COUNT_FILE} ${PY_REQUIREMENTS} ${GENERATE_PLOT_ICOUNT_SCRIPT}
+    )
+
+    list(APPEND ICOUNT_PLOTS ${ICOUNT_PLOT})
+
+    ### Calculate cycles and results
+    # set(CALC_RESULT_SCRIPT ${PROJECT_SOURCE_DIR}/scripts/calc_cycles.py)
+    # set(TEST_RESULT_FILE ${RESULT_DIR}/${targetsource}-results.csv)
+
+
+    # add_custom_command(OUTPUT ${TEST_RESULT_FILE}
+    #     COMMAND python3 ${CALC_RESULT_SCRIPT} ${targetsource} < ${INSTR_COUNT_FILE} > ${TEST_RESULT_FILE}
+    #     DEPENDS ${INSTR_COUNT_FILE} ${PY_REQUIREMENTS} ${CALC_RESULT_SCRIPT}
+    # )
+
+
 
     ### DEBUG
     #add_custom_target("objdump-${targetsource}" DEPENDS ${OBJDUMP_FILE})
@@ -123,7 +149,10 @@ foreach(targetsourcefile ${SOURCE_FILES})
     #add_custom_target("python-extract-instructions-${targetsource}" DEPENDS ${INSTR_COUNT_PATH})
 endforeach(targetsourcefile ${SOURCE_FILES})
 
+
+### Execution time results
 set(RESULT_FILE ${RESULT_DIR}/result.csv)
+set(ALL_PLOTS ${RESULT_DIR}/all-plots)
 
 add_custom_command(OUTPUT ${RESULT_FILE}
     COMMAND cmake -E echo "test,count,cycles,time_us @200MHz" > ${RESULT_FILE}
@@ -131,6 +160,14 @@ add_custom_command(OUTPUT ${RESULT_FILE}
     DEPENDS ${TEST_RESULTS}
 )
 
+
+### Plots
+add_custom_command(OUTPUT ${ALL_PLOTS}
+    DEPENDS ${ICOUNT_PLOTS}
+)
+
+
+### Target which generates all results
 add_custom_target(results
-    DEPENDS ${RESULT_FILE}
+    DEPENDS ${RESULT_FILE} ${ALL_PLOTS}
 )
