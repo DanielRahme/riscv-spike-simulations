@@ -110,7 +110,7 @@ foreach(targetsourcefile ${SOURCE_FILES})
 
 
     add_custom_command(OUTPUT ${TEST_RESULT_FILE}
-        COMMAND python3 ${CALC_RESULT_SCRIPT} ${INSTR_COUNT_FILE} > ${TEST_RESULT_FILE}
+        COMMAND python3 ${CALC_RESULT_SCRIPT} ${targetsource} < ${INSTR_COUNT_FILE} > ${TEST_RESULT_FILE}
         DEPENDS ${INSTR_COUNT_FILE} ${PY_REQUIREMENTS} ${CALC_RESULT_SCRIPT}
     )
 

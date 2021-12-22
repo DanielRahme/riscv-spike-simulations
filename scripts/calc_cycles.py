@@ -2,6 +2,7 @@ import csv
 import os.path
 import matplotlib.pyplot as plt
 import numpy as np
+import sys
 
 float_instructions = {
 # Sign inject
@@ -50,12 +51,13 @@ float_instructions = {
 }
 
 
-def read_instruct_csv(csv_file):
-    with open(csv_file, mode='r', newline='') as fp:
-        dictreader = csv.reader(fp, delimiter=',')
-        dict_from_csv = {rows[0]:int(rows[1]) for rows in dictreader}
+def read_instruct_csv():
+    instruction_count = {}
+    for line in sys.stdin:
+        instr, count = line.split(",")
+        instruction_count[instr] = int(count)
 
-    return dict_from_csv
+    return instruction_count
 
 
 def calc_cycles(instructs):
@@ -353,20 +355,18 @@ def print_pie_chart(file_prefix, data):
     pie_chart_file = file_prefix + "-piechart.png"
     plt.savefig(pie_chart_file, dpi=300)
 
-def main(input_file):
-    import os
+def main(case_name):
 
     clock_freq_mhz = 200 
-    case_name = os.path.basename(input_file).removesuffix("-freq-instruct.csv")
 
-    instructs = read_instruct_csv(input_file)
+    instructs = read_instruct_csv()
     inst_count = sum(instructs.values())
     cycles = calc_cycles(instructs)
     exec_time = cycles / clock_freq_mhz
 
     print(case_name + "," + str(inst_count) + "," + str(cycles) + "," + str(exec_time))
-    print_bar_chart(input_file, instructs)
-    print_pie_chart(input_file, instructs)
+    print_bar_chart(case_name, instructs)
+    print_pie_chart(case_name, instructs)
 
 
 if __name__ == "__main__":
