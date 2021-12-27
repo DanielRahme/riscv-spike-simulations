@@ -3,3 +3,4 @@
 ## Librareis
 matplotlib
 numpy
+pandas
