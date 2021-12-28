@@ -92,7 +92,7 @@ cat_other = ["fsqrt.s", "fsgnj.s", "fsgnjn.s", "fsgnjx.s", "fmin.s", "fmax.s",
 
 # Read innput
 def read_instruct_csv_to_frame():
-    instructs = pd.read_csv(sys.stdin, names=["Instruct", "Cycles"])
+    instructs = pd.read_csv(sys.stdin, names=["Instruct", "Count"])
     return instructs
 
 
@@ -106,16 +106,14 @@ def calc_instr_cycle(instr, cycles):
 
     return time
 
-def calc_instruction_time(instr_frame):
+def calc_cycles(instr_frame):
 
-    exec_times = []
+    instruction_cycles = []
 
     for idx, row in instr_frame.iterrows():
-        exec_times.append(calc_instr_cycle(row["Instruct"], row["Cycles"]))
+        instruction_cycles.append(calc_instr_cycle(row["Instruct"], row["Count"]))
 
-    instr_frame["Exec time"] = exec_times
-
-    return instr_frame
+    return instruction_cycles
 
 
 def create_categories(df):
@@ -176,23 +174,23 @@ def plot_exec_time(case_name, save_path, df):
     #### Plot results
     fig, ax = plt.subplots()
     ax.grid(axis='x', zorder=0)
-    ax.barh(y_pos, percent, align='center', height=0.4, zorder=3)
+    ax.barh(y_pos, percent, align='center', height=0.4, zorder=3, color='Red')
     ax.set_yticks(y_pos, labels=labels)
     ax.invert_yaxis()  # labels read top-to-bottom
-    ax.set_xlabel('Percent %')
+    ax.set_xlabel('Execution time [%]')
+    ax.set_ylabel('Instruction type')
     plt.xlim([0, 40])
 
     for index, value in enumerate(percent):
         plt.text(value, index, str("{:.2f}".format(value)))
 
-    fig.suptitle("Execution time per instruction category")
+    fig.suptitle("Dynamic Execution Time Per Instruction Type")
     ax.set_title(case_name)
 
-    plt.show()
-    #suffix = "-exec-time.png"
-    #file_name = save_path + case_name + suffix
-    #plt.savefig(file_name, dpi=300, bbox_inches='tight')
-
+    #plt.show()
+    suffix = "-exec-time.png"
+    file_name = save_path + case_name + suffix
+    plt.savefig(file_name, dpi=300, bbox_inches='tight')
 
 
 
@@ -200,11 +198,10 @@ def main(case_name, save_path):
     clock_freq_mhz = 200 
 
     data_frame = read_instruct_csv_to_frame()
-    data_frame = calc_instruction_time(data_frame)
+    data_frame["Cycles"] = calc_cycles(data_frame)
+    data_frame["Exec time"] = data_frame['Cycles'] / clock_freq_mhz
     data_frame = create_categories(data_frame)
     cat_frame = filter_categories(data_frame)
-
-    #plot_category_cycles(case_name, save_path, cat_frame)
     plot_exec_time(case_name, save_path, cat_frame)
 
 
