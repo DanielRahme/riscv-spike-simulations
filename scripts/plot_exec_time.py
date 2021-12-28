@@ -164,14 +164,28 @@ def plot_exec_time(case_name, save_path, df):
     df = df.sort_values(by=['Exec time'], ascending=False)
     exec_time = df['Exec time']
     total_exec_time = df['Exec time'].sum()
+    limit = 0.04
+    time_limit = total_exec_time * limit
 
-    labels = df['Category']
 
-    percent = 100 * exec_time / total_exec_time
-    y_pos = np.arange(len(exec_time))
+    df_req = df.loc[
+            (df['Category'] == 'load')    |
+            (df['Category'] == 'store')   |
+            (df['Category'] == 'addi')    |
+            (df['Category'] == 'branch')
+            ]
 
+    df_res = df[df['Exec time'] > time_limit]
+    df_res = df_res.append(df_req)
+    df_res = df_res.drop_duplicates()
+    df_res = df_res.sort_values(by=['Exec time'], ascending=False)
+    df_res['Percent'] = 100 * df_res['Exec time'] / total_exec_time
 
     #### Plot results
+    labels = df_res['Category']
+    percent = df_res['Percent']
+    y_pos = np.arange(len(df_res['Exec time']))
+
     fig, ax = plt.subplots()
     ax.grid(axis='x', zorder=0)
     ax.barh(y_pos, percent, align='center', height=0.4, zorder=3, color='Red')
