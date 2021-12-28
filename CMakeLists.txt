@@ -144,6 +144,18 @@ foreach(targetsourcefile ${SOURCE_FILES})
     list(APPEND IGROUP_PLOTS ${IGROUP_PLOT})
 
 
+    ### Plot execution time for each case
+    set(PLOT_EXEC_TIME_SCRIPT ${PROJECT_SOURCE_DIR}/scripts/plot_exec_time.py)
+    set(EXEC_TIME_PLOT ${RESULT_DIR}/${targetsource}-exec-time.png)
+
+    add_custom_command(OUTPUT ${EXEC_TIME_PLOT}
+        COMMAND python3 ${PLOT_EXEC_TIME_SCRIPT} ${targetsource} ${PLOT_PATH} < ${INSTR_COUNT_FILE}
+        DEPENDS ${INSTR_COUNT_FILE} ${PY_REQUIREMENTS} ${PLOT_EXEC_TIME_SCRIPT}
+    )
+
+    list(APPEND EXEC_TIME_PLOTS ${EXEC_TIME_PLOT})
+
+
     ### DEBUG
     #add_custom_target("objdump-${targetsource}" DEPENDS ${OBJDUMP_FILE})
     #add_custom_target("python-spike-cmd-${targetsource}" DEPENDS ${SPIKE_CMD_FILE})
@@ -165,7 +177,7 @@ add_custom_command(OUTPUT ${RESULT_FILE}
 
 ### Plots
 add_custom_command(OUTPUT ${ALL_PLOTS}
-    DEPENDS ${ICOUNT_PLOTS} ${IGROUP_PLOTS}
+    DEPENDS ${ICOUNT_PLOTS} ${IGROUP_PLOTS} ${EXEC_TIME_PLOTS}
 )
 
 
