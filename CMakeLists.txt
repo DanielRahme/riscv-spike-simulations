@@ -175,9 +175,18 @@ add_custom_command(OUTPUT ${RESULT_FILE}
 )
 
 
+### Plot execution time results
+set(RISCV_EXEC_TIMES_PLOT ${RESULT_DIR}/riscv-exec-time-all.png)
+set(PLOT_EXEC_TIME_ALL_SCRIPT ${PROJECT_SOURCE_DIR}/scripts/plot_all_exec_time.py)
+
+add_custom_command(OUTPUT ${RISCV_EXEC_TIMES_PLOT}
+    COMMAND python3 ${PLOT_EXEC_TIME_ALL_SCRIPT} ${RISCV_EXEC_TIMES_PLOT} < ${RESULT_FILE}
+    DEPENDS ${PLOT_EXEC_TIME_ALL_SCRIPT} ${RESULT_FILE} ${PY_REQUIREMENTS}
+)
+
 ### Plots
 add_custom_command(OUTPUT ${ALL_PLOTS}
-    DEPENDS ${ICOUNT_PLOTS} ${IGROUP_PLOTS} ${EXEC_TIME_PLOTS}
+    DEPENDS ${ICOUNT_PLOTS} ${IGROUP_PLOTS} ${EXEC_TIME_PLOTS} ${RISCV_EXEC_TIMES_PLOT}
 )
 
 
