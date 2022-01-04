@@ -79,6 +79,7 @@ def plot_all_exec_times(file_name, df):
     fig.tight_layout()
 
     #plt.show()
+    file_name = file_name + "riscv-execution-time.png"
     plt.savefig(file_name, dpi=300, bbox_inches='tight')
 
 
@@ -149,16 +150,78 @@ def plot_all_exec_times_norm(file_name, df):
     fig.tight_layout()
 
     #plt.show()
-    file_name = file_name + "-norm.png"
+    file_name = file_name + "riscv-execution-norm.png"
     plt.savefig(file_name, dpi=300, bbox_inches='tight')
 
 
+
+def plot_norm_line_chart(file_name, df):
+    fft_size = ['64', '128', '256', '512', '1024', '2048', '4096']
+    labels = fft_size
+
+    # Remove size 8192
+    df = df[df['size'] < 8192]
+
+
+    ## Time based plot all
+    cfft_f32_exec_times = df.loc[
+            (df['fft'] == "cfft") &
+            (df['type'] == "f32"), 
+            "norm" ]
+    cfft_q31_exec_times = df.loc[
+            (df['fft'] == "cfft") &
+            (df['type'] == "q31"),
+            "norm" ]
+    cfft_q15_exec_times = df.loc[
+            (df['fft'] == "cfft") &
+            (df['type'] == "q15"),
+            "norm" ]
+    rfft_f32_exec_times = df.loc[
+            (df['fft'] == "rfft") &
+            (df['type'] == "f32"),
+            "norm" ]
+    rfft_q31_exec_times = df.loc[
+            (df['fft'] == "rfft") &
+            (df['type'] == "q31"),
+            "norm" ]
+    rfft_q15_exec_times = df.loc[
+            (df['fft'] == "rfft") &
+            (df['type'] == "q15"),
+            "norm" ]
+
+
+
+    x = np.arange(len(labels))  # the label locations
+    fig, ax = plt.subplots()
+    ax.grid(zorder=0)
+
+    ax.plot(fft_size, rfft_f32_exec_times, label="rfft f32", zorder=4, linewidth=4)
+    ax.plot(fft_size, rfft_q31_exec_times, label="rfft q31", zorder=4, linewidth=4)
+    ax.plot(fft_size, rfft_q15_exec_times, label="rfft q15", zorder=4, linewidth=4)
+    ax.plot(fft_size, cfft_f32_exec_times, label="cfft f32", zorder=4, linewidth=4)
+    ax.plot(fft_size, cfft_q31_exec_times, label="cfft q31", zorder=4, linewidth=4)
+    ax.plot(fft_size, cfft_q15_exec_times, label="cfft q15", zorder=4, linewidth=4)
+
+    ax.set_xlabel('FFT size')
+    ax.set_ylabel('Execution time normalized')
+    ax.set_title('Line Normalized dynamic execution time of RISC-V FFT functions')
+    ax.set_xticks(x, labels)
+    ax.legend(bbox_to_anchor=(1.0, 1.00))
+    fig.tight_layout()
+
+    #plt.show()
+    file_name = file_name + "riscv-execution-norm-line.png"
+    plt.savefig(file_name, dpi=300, bbox_inches='tight')
 
 def main(file_name):
     df = read_instruct_csv_to_frame()
     df = parse_test_names(df)
     df = normalize(df)
+
+    plot_all_exec_times(file_name, df)
     plot_all_exec_times_norm(file_name, df)
+    plot_norm_line_chart(file_name, df)
+
 
 
 if __name__ == "__main__":
