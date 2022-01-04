@@ -12,6 +12,7 @@ def parse_test_names(df):
     df['fft'] = test_case_names[0]
     df['type'] = test_case_names[1]
     df['size'] = test_case_names[2]
+    df['size'] = df['size'].astype(int)
     return df
 
 
@@ -93,7 +94,6 @@ def plot_all_exec_times_norm(file_name, df):
     labels = fft_size
 
     # Remove size 8192
-    df['size'] = df['size'].astype(int)
     df = df[df['size'] < 8192]
 
 
@@ -145,18 +145,14 @@ def plot_all_exec_times_norm(file_name, df):
     ax.set_ylabel('Execution time normalized')
     ax.set_title('Normalized dynamic execution time of RISC-V FFT functions')
     ax.set_xticks(x, labels)
-    ax.legend()
-
+    ax.legend(bbox_to_anchor=(1.0, 1.00))
     fig.tight_layout()
 
-    plt.show()
-    #file_name = file_name + "-norm.png"
-    #plt.savefig(file_name, dpi=300, bbox_inches='tight')
+    #plt.show()
+    file_name = file_name + "-norm.png"
+    plt.savefig(file_name, dpi=300, bbox_inches='tight')
 
 
-def plot_line_chart(df):
-    print("line chart here")
-    print(df)
 
 def main(file_name):
     df = read_instruct_csv_to_frame()
