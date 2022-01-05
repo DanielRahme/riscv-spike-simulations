@@ -8,10 +8,8 @@ def read_instruct_csv_to_frame():
     return pd.read_csv(sys.stdin)
 
 def parse_test_names(df):
-    test_case_names = df['test'].str.split('_', n=0, expand=True)
-    df['fft'] = test_case_names[0]
-    df['type'] = test_case_names[1]
-    df['size'] = test_case_names[2]
+    df[['fft','type', 'size']] = df['test'].str.split('_', expand=True)
+    df = df.drop(['test'], axis=1)
     df['size'] = df['size'].astype(int)
     return df
 
@@ -213,15 +211,48 @@ def plot_norm_line_chart(file_name, df):
     file_name = file_name + "riscv-execution-norm-line.png"
     plt.savefig(file_name, dpi=300, bbox_inches='tight')
 
+
+def plot_comparison(filepath, riscv_df, dsp_df):
+
+    dsp_df = dsp_df[['DSP', 'FFT-type', 'FFT points', 'Execution time [µs]']]
+
+    dsp_df[['fft','type']] = dsp_df['FFT-type'].str.split('-', expand=True)
+
+    #test_case_names = dsp_df['FFT-type'].str.split('-', n=0, expand=True)
+    #dsp_df['fft'] = test_case_names[0]
+    #dsp_df['type'] = test_case_names[1]
+
+    dsp_df = dsp_df.drop(['FFT-type'], axis=1)
+    dsp_df = dsp_df.rename(columns={"Execution time [µs]":"time_us",
+                                    "DSP": "Name"})
+
+    riscv_df = riscv_df[['time_us @200MHz', 'fft', 'type', 'size']]
+    riscv_df = riscv_df.rename(columns={"time_us @200MHz":"time_us",
+                                        "size": "FFT points"})
+    riscv_df['Name'] = "rv32imfc"
+
+    df = dsp_df.append(riscv_df)
+
+    #df['time_us'] = df['time_us @200MHz']
+    #df['time_us'] = df['Execution time [µs]']
+
+
+    print(df.head())
+    print(df.tail())
+
+
 def main(file_name):
     df = read_instruct_csv_to_frame()
     df = parse_test_names(df)
     df = normalize(df)
 
+
     plot_all_exec_times(file_name, df)
     plot_all_exec_times_norm(file_name, df)
     plot_norm_line_chart(file_name, df)
 
+    dsp_df = pd.read_csv("dsp-benchmarks.csv")
+    plot_comparison(file_name, df, dsp_df)
 
 
 if __name__ == "__main__":
