@@ -76,7 +76,6 @@ def plot_all_exec_times(file_name, df):
 
     fig.tight_layout()
 
-    #plt.show()
     file_name = file_name + "riscv-execution-time.png"
     plt.savefig(file_name, dpi=300, bbox_inches='tight')
 
@@ -147,7 +146,6 @@ def plot_all_exec_times_norm(file_name, df):
     ax.legend(bbox_to_anchor=(1.0, 1.00))
     fig.tight_layout()
 
-    #plt.show()
     file_name = file_name + "riscv-execution-norm.png"
     plt.savefig(file_name, dpi=300, bbox_inches='tight')
 
@@ -207,45 +205,70 @@ def plot_norm_line_chart(file_name, df):
     ax.legend(bbox_to_anchor=(1.0, 1.00))
     fig.tight_layout()
 
-    #plt.show()
     file_name = file_name + "riscv-execution-norm-line.png"
+    plt.savefig(file_name, dpi=300, bbox_inches='tight')
+
+
+def plot_multi_barchart(df_pivot,title, y_label, file_name):
+    ax = df_pivot.plot(kind='bar', zorder=4, title=title)
+    ax.set(ylabel = y_label)
+    ax.grid(zorder=0)
     plt.savefig(file_name, dpi=300, bbox_inches='tight')
 
 
 def plot_comparison(filepath, riscv_df, dsp_df):
 
+    # Prepare dsp dataframe
     dsp_df = dsp_df[['DSP', 'FFT-type', 'FFT points', 'Execution time [µs]']]
 
     dsp_df[['fft','type']] = dsp_df['FFT-type'].str.split('-', expand=True)
-
-    #test_case_names = dsp_df['FFT-type'].str.split('-', n=0, expand=True)
-    #dsp_df['fft'] = test_case_names[0]
-    #dsp_df['type'] = test_case_names[1]
-
     dsp_df = dsp_df.drop(['FFT-type'], axis=1)
+
     dsp_df = dsp_df.rename(columns={"Execution time [µs]":"time_us",
                                     "DSP": "Name"})
 
+    # Prepare riscv dataframe
     riscv_df = riscv_df[['time_us @200MHz', 'fft', 'type', 'size']]
+    riscv_df['Name'] = "rv32imfc"
     riscv_df = riscv_df.rename(columns={"time_us @200MHz":"time_us",
                                         "size": "FFT points"})
-    riscv_df['Name'] = "rv32imfc"
-
+    # Merge the two dataframes
     df = dsp_df.append(riscv_df)
+    df['fft-type'] = df['fft'] + "-" + df['type']
 
-    #df['time_us'] = df['time_us @200MHz']
-    #df['time_us'] = df['Execution time [µs]']
+    
+
+    grouped = df.groupby(['FFT points', 'fft', 'type'])
+    df['norm'] = grouped['time_us'].transform(lambda x : x / x.max())
+    df['performance'] = 1 / df['norm']
 
 
-    print(df.head())
-    print(df.tail())
+    df_rfft_q15 = df[(df['fft'] == 'rfft') & (df['type'] == 'q15') & (df['FFT points'] > 256)]
+    df_cfft_q31 = df[(df['fft'] == 'cfft') & (df['type'] == 'q31')]
+    df_cfft_f32 = df[(df['fft'] == 'cfft') & (df['type'] == 'f32')]
+
+    df_to_plot = [df_rfft_q15, df_cfft_q31, df_cfft_f32]
+
+    # Plot performance and ratio
+    for dfp in df_to_plot:
+        fft_type = dfp['fft-type'].iloc[0]
+        dfpiv = dfp.pivot(index='FFT points', columns='Name', values='performance')
+        plot_multi_barchart(dfpiv, 
+                            "Relative performance of " + fft_type, 
+                            "Relative performance", 
+                            filepath + "relative-performance-" + fft_type + ".png")
+
+        dfpiv = dfp.pivot(index='FFT points', columns='Name', values='norm')
+        plot_multi_barchart(dfpiv, 
+                            "Normalized ratio of " + fft_type, 
+                            "Ratio of slowest", 
+                            filepath + "relative-ratio-" + fft_type + ".png")
 
 
 def main(file_name):
     df = read_instruct_csv_to_frame()
     df = parse_test_names(df)
     df = normalize(df)
-
 
     plot_all_exec_times(file_name, df)
     plot_all_exec_times_norm(file_name, df)
