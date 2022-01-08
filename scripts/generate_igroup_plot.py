@@ -5,7 +5,7 @@ import numpy as np
 def read_instruct_csv():
     instruction_count = {}
     for line in sys.stdin:
-        instr, count = line.split(",")
+        test_name, instr, count = line.split(",")
         instruction_count[instr] = int(count)
 
     return instruction_count

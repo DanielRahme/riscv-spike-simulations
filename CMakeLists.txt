@@ -102,7 +102,7 @@ foreach(targetsourcefile ${SOURCE_FILES})
     set(INSTR_COUNT_PATH ${RESULT_DIR}/${targetsource})
 
     add_custom_command(OUTPUT ${INSTR_COUNT_FILE}
-        COMMAND python3 ${PYTHON_SPIKE_PARSER} < ${SPIKE_LOG_FILE} > ${INSTR_COUNT_FILE}
+        COMMAND python3 ${PYTHON_SPIKE_PARSER} ${targetsource} < ${SPIKE_LOG_FILE} > ${INSTR_COUNT_FILE}
         DEPENDS ${SPIKE_LOG_FILE} ${PY_REQUIREMENTS} ${PYTHON_SPIKE_PARSER}
     )
 

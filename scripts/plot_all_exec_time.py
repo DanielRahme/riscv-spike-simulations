@@ -274,8 +274,8 @@ def main(file_name):
     plot_all_exec_times_norm(file_name, df)
     plot_norm_line_chart(file_name, df)
 
-    dsp_df = pd.read_csv("dsp-benchmarks.csv")
-    plot_comparison(file_name, df, dsp_df)
+    #dsp_df = pd.read_csv("dsp-benchmarks.csv")
+    #plot_comparison(file_name, df, dsp_df)
 
 
 if __name__ == "__main__":

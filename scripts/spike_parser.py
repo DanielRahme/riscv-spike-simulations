@@ -26,15 +26,14 @@ def extract_instructions():
 
     return collections.Counter(instructs)
 
-def print_results(freq_instructs):
+def print_results(test_name, freq_instructs):
     for op, count in freq_instructs.items():
-        print(op + "," + str(count))
+        print(test_name + "," + op + "," + str(count))
 
 
-def main():
+def main(test_name):
     freq_instructs = dict(extract_instructions())
-    print_results(freq_instructs)
+    print_results(test_name, freq_instructs)
 
 if __name__ == "__main__":
-    import sys
-    main()
+    main(sys.argv[1])
